@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  monitor:
+    image: 'data-feed-status-bot-test'
+    environment:
+      SERVER_PORT: $SERVER_PORT
+      TOKEN: $TOKEN
+      CHANNEL_ID: $CHANNEL_ID
+      POLLING_INTERVAL: $POLLING_INTERVAL
+      FEED_EXPLORER_API: $FEED_EXPLORER_API

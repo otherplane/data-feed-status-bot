@@ -2,9 +2,8 @@ version: '2'
 
 services:
   monitor:
-    image: 'data-feed-status-bot-test'
+    image: 'data-feed-status-bot'
     environment:
-      SERVER_PORT: $SERVER_PORT
       TOKEN: $TOKEN
       CHANNEL_ID: $CHANNEL_ID
       POLLING_INTERVAL: $POLLING_INTERVAL

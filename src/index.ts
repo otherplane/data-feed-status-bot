@@ -3,9 +3,7 @@ process.env.NTBA_FIX_319 = '1'
 import { GraphQLClient } from 'graphql-request'
 import TelegramBot from 'node-telegram-bot-api'
 
-import { Feed } from './types'
-import { isFeedOutdated } from './isFeedOutdated'
-import { fetchFeedsApi } from './fetchFeedsApi'
+import { DataFeedMonitor } from './DataFeedMonitor'
 
 const TOKEN = process.env.TOKEN
 const CHANNEL_ID = process.env.CHANNEL_ID
@@ -16,35 +14,22 @@ main()
 
 async function main () {
   if (!TOKEN) {
-    console.error('Mandatory environment variable TOKEN is missing')
-    return
+    throw new Error('Mandatory environment variable TOKEN is missing')
   }
 
   if (!CHANNEL_ID) {
-    console.error('Mandatory environment variable CHANNEL_ID is missing')
-    return
+    throw new Error('Mandatory environment variable CHANNEL_ID is missing')
   }
 
   if (!FEED_EXPLORER_API) {
-    console.error('Mandatory environment variable FEED_EXPLORER_API is missing')
-    return
+    throw new Error(
+      'Mandatory environment variable FEED_EXPLORER_API is missing'
+    )
   }
 
   const bot = new TelegramBot(TOKEN)
   const client = new GraphQLClient(FEED_EXPLORER_API)
+  const dataFeedMonitor = new DataFeedMonitor(client, bot)
 
-  const {
-    feeds: { feeds }
-  } = await fetchFeedsApi(client)
-
-  const dateNow = Date.now()
-
-  setInterval(() => {
-    feeds.forEach((feed: Feed) => {
-      if (isFeedOutdated(dateNow, feed)) {
-        console.warn(`${feed.feedFullName} is outdated`)
-        bot.sendMessage(CHANNEL_ID, `${feed.feedFullName} is outdated`)
-      }
-    })
-  }, POLLING_INTERVAL)
+  setInterval(async () => dataFeedMonitor.checkFeedsStatus(), POLLING_INTERVAL)
 }

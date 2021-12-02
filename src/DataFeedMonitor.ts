@@ -35,10 +35,14 @@ export class DataFeedMonitor {
   }
 
   public async sendTelegramMessage (message: string) {
-    // if CHANNEL_ID is not found at the beginning will throw an error
-    return await this.telegramBot.sendMessage(
-      process.env.CHANNEL_ID as string,
-      message
-    )
+    try {
+      // if CHANNEL_ID is not found at the beginning will throw an error
+      return await this.telegramBot.sendMessage(
+        process.env.CHANNEL_ID as string,
+        message
+      )
+    } catch (err) {
+      console.error(err)
+    }
   }
 }

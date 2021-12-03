@@ -17,19 +17,23 @@ export class DataFeedMonitor {
     const {
       feeds: { feeds }
     } = await fetchFeedsApi(this.graphQLClient)
+    const messages: Array<string> = []
     this.state = feeds.reduce((acc, feed: Feed) => {
       const isOutdated = isFeedOutdated(dateNow, feed)
       const statusHasChanged = acc[feed.feedFullName] !== isOutdated
 
       if (statusHasChanged) {
-        const message = isOutdated
-          ? `${feed.feedFullName} is outdated ❌`
-          : `${feed.feedFullName} is updated ✅`
-        this.sendTelegramMessage(message)
+        messages.push(
+          isOutdated ? `❌ ${feed.feedFullName}` : `✅ ${feed.feedFullName}`
+        )
       }
 
       return { ...acc, [feed.feedFullName]: isOutdated }
     }, this.state)
+
+    if (messages.length) {
+      this.sendTelegramMessage(messages.join('\n'))
+    }
 
     return
   }

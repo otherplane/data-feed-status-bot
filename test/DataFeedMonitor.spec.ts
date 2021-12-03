@@ -100,7 +100,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        'feedFullname2 is outdated ❌'
+        '❌ feedFullname2'
       )
     })
 
@@ -119,11 +119,10 @@ describe('DataFeedMonitor', () => {
       const dateNow = 1638461384178
 
       await dataFeedMonitor.checkFeedsStatus(dateNow)
-      await dataFeedMonitor.checkFeedsStatus(dateNow + 10000)
 
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        'feedFullname2 is outdated ❌'
+        '❌ feedFullname2'
       )
     })
 
@@ -143,7 +142,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        'feedFullname2 is updated ✅'
+        '✅ feedFullname2'
       )
     })
 

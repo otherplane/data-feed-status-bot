@@ -1,6 +1,7 @@
 export type Feed = {
   heartbeat: string
   feedFullName: string
+  finality: string
   requests: Array<{ timestamp: string; feedFullName: string }>
 }
 

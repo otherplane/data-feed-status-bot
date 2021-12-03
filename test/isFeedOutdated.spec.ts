@@ -5,10 +5,12 @@ describe('isFeedOutdated', () => {
     const currentTimestamp = 1638286984742
     const lastRequestTimestamp = '1638285457'
     const heartbeat = '4500000'
+    const finality = '10000'
     const feedFullName = 'outdated_feed'
     const requests = [{ timestamp: lastRequestTimestamp, feedFullName }]
     const isOutdated = isFeedOutdated(currentTimestamp, {
       heartbeat,
+      finality,
       requests,
       feedFullName
     })
@@ -20,10 +22,12 @@ describe('isFeedOutdated', () => {
     const currentTimestamp = 1638286984742
     const lastRequestTimestamp = '1638228502'
     const heartbeat = '4500000'
+    const finality = '10000'
     const feedFullName = 'feed'
     const requests = [{ timestamp: lastRequestTimestamp, feedFullName }]
     const isOutdated = isFeedOutdated(currentTimestamp, {
       heartbeat,
+      finality,
       requests,
       feedFullName
     })

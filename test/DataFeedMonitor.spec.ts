@@ -7,11 +7,13 @@ import * as IsFeedOutdated from '../src/isFeedOutdated'
 const FEEDS = [
   {
     heartbeat: '1000',
+    finality: '1',
     feedFullName: 'feedFullname1',
     requests: [{ feedFullName: 'feedFullName1', timestamp: '1000' }]
   },
   {
     heartbeat: '1000',
+    finality: '1',
     feedFullName: 'feedFullname2',
     requests: [{ feedFullName: 'feedFullName2', timestamp: '1000' }]
   }
@@ -22,6 +24,7 @@ const FEED_SINGLE_RESPONSE = {
     feeds: [
       {
         heartbeat: '1000',
+        finality: '1',
         feedFullName: 'feedFullname2',
         requests: [{ feedFullName: 'feedFullName2', timestamp: '1000' }]
       }
@@ -140,7 +143,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        'feedFullname2 is updated ✔️'
+        'feedFullname2 is updated ✅'
       )
     })
 

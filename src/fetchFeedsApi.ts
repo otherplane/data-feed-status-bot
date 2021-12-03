@@ -20,6 +20,7 @@ export function fetchFeedsApi (
           address
           lastResult
           heartbeat
+          finality
           requests(timestamp: $timestamp) {
             feedFullName
             timestamp

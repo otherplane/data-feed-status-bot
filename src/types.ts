@@ -1,8 +1,9 @@
+export type Request = { timestamp: string; feedFullName: string }
 export type Feed = {
   heartbeat: string
   feedFullName: string
   finality: string
-  requests: Array<{ timestamp: string; feedFullName: string }>
+  requests: Array<Request>
 }
 
 export type ApiSuccessResponse = {

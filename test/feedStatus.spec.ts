@@ -1,6 +1,6 @@
-import { isFeedOutdated } from '../src/isFeedOutdated'
+import { getMsToBeUpdated } from '../src/feedStatus'
 
-describe('isFeedOutdated', () => {
+describe('getMsToBeUpdated', () => {
   it('should return false if the heartbeat is GREATER than the difference between current timestamp and last request timestamp)', () => {
     const currentTimestamp = 1638286984742
     const lastRequestTimestamp = '1638285457'
@@ -8,14 +8,13 @@ describe('isFeedOutdated', () => {
     const finality = '10000'
     const feedFullName = 'outdated_feed'
     const requests = [{ timestamp: lastRequestTimestamp, feedFullName }]
-    const isOutdated = isFeedOutdated(currentTimestamp, {
+    const msToBeUpdated = getMsToBeUpdated(currentTimestamp, {
       heartbeat,
       finality,
       requests,
       feedFullName
     })
-
-    expect(isOutdated).toBe(false)
+    expect(msToBeUpdated).toBe(4109758)
   })
 
   it('should return true if the heartbeat is LOWER than the difference between current timestamp and last request timestamp', () => {
@@ -25,13 +24,13 @@ describe('isFeedOutdated', () => {
     const finality = '10000'
     const feedFullName = 'feed'
     const requests = [{ timestamp: lastRequestTimestamp, feedFullName }]
-    const isOutdated = isFeedOutdated(currentTimestamp, {
+    const isOutdated = getMsToBeUpdated(currentTimestamp, {
       heartbeat,
       finality,
       requests,
       feedFullName
     })
 
-    expect(isOutdated).toBe(true)
+    expect(isOutdated).toBe(-52845242)
   })
 })

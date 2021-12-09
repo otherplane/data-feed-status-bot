@@ -35,7 +35,9 @@ export function fetchFeedsApi (
     pageSize: 100,
     network: 'all',
     // get requests from past 2 days
-    timestamp: Math.floor(Date.now() / 1000) - 3600 * 24 * 2
+    timestamp:
+      Math.floor(Date.now() / 1000) -
+      3600 * 24 * parseInt(process.env.DAYS_TO_REQUEST || '1')
   }
 
   return client.request(query, variables)

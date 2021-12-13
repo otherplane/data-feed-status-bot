@@ -31,5 +31,12 @@ async function main () {
   const client = new GraphQLClient(FEED_EXPLORER_API)
   const dataFeedMonitor = new DataFeedMonitor(client, bot)
 
-  setInterval(async () => dataFeedMonitor.checkFeedsStatus(), POLLING_INTERVAL)
+  setInterval(async () => {
+    try {
+      dataFeedMonitor.checkFeedsStatus()
+    } catch (error) {
+      console.error(`Error checking feeds status ${error}`)
+      dataFeedMonitor.sendTelegramMessage('Error checking feeds status')
+    }
+  }, POLLING_INTERVAL)
 }

@@ -30,7 +30,14 @@ export class DataFeedMonitor {
         shouldNotify = true
       }
 
-      messages.push(createMessage(feed.feedFullName, isOutdated, msToBeUpdated))
+      messages.push(
+        createMessage(
+          feed.feedFullName,
+          isOutdated,
+          msToBeUpdated,
+          statusHasChanged
+        )
+      )
 
       return { ...acc, [feed.feedFullName]: isOutdated }
     }, this.state)
@@ -47,7 +54,8 @@ export class DataFeedMonitor {
       // if CHANNEL_ID is not found at the beginning will throw an error
       return await this.telegramBot.sendMessage(
         process.env.CHANNEL_ID as string,
-        message
+        message,
+        { parse_mode: 'Markdown' }
       )
     } catch (err) {
       console.error(err)
@@ -58,9 +66,15 @@ export class DataFeedMonitor {
 function createMessage (
   feedFullName: string,
   isOutdated: boolean,
-  msToBeUpdated: number
+  msToBeUpdated: number,
+  statusChanged: boolean
 ): string {
-  if (!isOutdated) return `✅ ${feedFullName}`
+  if (!isOutdated) {
+    const updatedMessage = `✅ ${feedFullName}`
+    // add bold style is status changed from previous call
+    return statusChanged ? `*${updatedMessage}*` : updatedMessage
+  }
+
   let secondsToBeUpdated = Math.floor((-1 * msToBeUpdated) / 1000)
 
   const days = Math.floor(secondsToBeUpdated / (60 * 60 * 24))
@@ -83,5 +97,7 @@ function createMessage (
     timeOutdatedString = `${minutes}m`
   }
 
-  return `❌ ${feedFullName} ${timeOutdatedString}`
+  const outdatedMessage = `❌ ${feedFullName} ${timeOutdatedString}`
+  // add bold style is status changed from previous call
+  return statusChanged ? `*${outdatedMessage}*` : outdatedMessage
 }

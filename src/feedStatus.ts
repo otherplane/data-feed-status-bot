@@ -6,14 +6,13 @@ export function isFeedOutdated (msToBeUpdated: number): boolean {
 
 export function getMsToBeUpdated (
   dateNow: number,
-  { heartbeat, finality, requests }: Feed
+  { heartbeat, requests }: Feed
 ) {
   const admissibleDelayCorrection = process.env.ADMISSIBLE_DELAY
     ? parseInt(process.env.ADMISSIBLE_DELAY)
     : undefined
   const admissibleDelay = calculateAdmissibleDelay(
     parseInt(heartbeat),
-    parseInt(finality),
     admissibleDelayCorrection
   )
 
@@ -39,13 +38,11 @@ export function getMsToBeUpdated (
 
 function calculateAdmissibleDelay (
   heartbeat: number,
-  finality: number,
   admissibleDelayCorrection?: number
 ): number {
-  const fullHeartbeat = heartbeat + finality
   return admissibleDelayCorrection
-    ? Math.floor(fullHeartbeat + fullHeartbeat / admissibleDelayCorrection)
-    : fullHeartbeat
+    ? Math.floor(heartbeat + heartbeat / admissibleDelayCorrection)
+    : heartbeat
 }
 
 function getLastRequest (requests: Array<Request>): Request | undefined {

@@ -118,7 +118,7 @@ describe('DataFeedMonitor', () => {
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         '*❌ feedFullname2 > 3d*',
-        { parse_mode: 'Markdown'}
+        { parse_mode: 'Markdown' }
       )
     })
 
@@ -141,7 +141,7 @@ describe('DataFeedMonitor', () => {
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         '*❌ feedFullname2 > 3d*',
-        { parse_mode: 'Markdown'}
+        { parse_mode: 'Markdown' }
       )
     })
 
@@ -164,7 +164,7 @@ describe('DataFeedMonitor', () => {
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         '*❌ feedFullname2 1h 23m*',
-        { parse_mode: "Markdown" }
+        { parse_mode: 'Markdown' }
       )
     })
 
@@ -185,7 +185,7 @@ describe('DataFeedMonitor', () => {
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         '*✅ feedFullname2*',
-        { parse_mode: 'Markdown'}
+        { parse_mode: 'Markdown' }
       )
     })
 

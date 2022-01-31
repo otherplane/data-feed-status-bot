@@ -1,3 +1,4 @@
+import { FAST_UPDATE_FEED_KEYWORDS } from './constants'
 import { Feed, Request } from './types'
 
 export function isFeedOutdated (msToBeUpdated: number): boolean {
@@ -6,10 +7,15 @@ export function isFeedOutdated (msToBeUpdated: number): boolean {
 
 export function getMsToBeUpdated (
   dateNow: number,
-  { heartbeat, requests }: Omit<Feed, 'finality' | 'feedFullName'> 
+  { heartbeat, requests, feedFullName }: Omit<Feed, 'finality'>
 ) {
-  const admissibleDelayCorrection = process.env.ADMISSIBLE_DELAY
-    ? parseInt(process.env.ADMISSIBLE_DELAY)
+  const ADMISSIBLE_DELAY =
+    process.env.ADMISIBLE_DELAY &&
+    FAST_UPDATE_FEED_KEYWORDS.find(keyword => feedFullName.includes(keyword))
+      ? process.env.ADMISSIBLE_DELAY_LONG
+      : process.env.ADMISSIBLE_DELAY
+  const admissibleDelayCorrection = ADMISSIBLE_DELAY
+    ? parseInt(ADMISSIBLE_DELAY)
     : undefined
   const admissibleDelay = calculateAdmissibleDelay(
     parseInt(heartbeat),

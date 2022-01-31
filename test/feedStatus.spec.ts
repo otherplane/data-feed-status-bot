@@ -9,6 +9,7 @@ describe('getMsToBeUpdated', () => {
     const requests = [{ timestamp: lastRequestTimestamp, feedFullName }]
 
     const msToBeUpdated = getMsToBeUpdated(currentTimestamp, {
+      feedFullName,
       heartbeat,
       requests
     })
@@ -24,6 +25,7 @@ describe('getMsToBeUpdated', () => {
     const requests = [{ timestamp: lastRequestTimestamp, feedFullName }]
 
     const isOutdated = getMsToBeUpdated(currentTimestamp, {
+      feedFullName,
       heartbeat,
       requests
     })

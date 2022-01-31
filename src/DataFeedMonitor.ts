@@ -4,6 +4,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import { fetchFeedsApi } from './fetchFeedsApi'
 import { getMsToBeUpdated, isFeedOutdated } from './feedStatus'
 import { Feed } from './types'
+import { MAINNET_KEYWORDS } from './constants'
 
 export class DataFeedMonitor {
   constructor (
@@ -17,18 +18,30 @@ export class DataFeedMonitor {
     const {
       feeds: { feeds }
     } = await fetchFeedsApi(this.graphQLClient)
-    const messages: Array<string> = []
+    const mainnetMessages: Array<string> = ['MAINNET FEEDS\n']
+    const testnetMessages: Array<string> = ['TESTNET FEEDS\n']
 
-    let shouldNotify = false
+    let shouldNotifyMainnet,
+      shouldNotifyTestnet = false
 
     this.state = feeds.reduce((acc, feed: Feed) => {
+      const isMainnetFeed = MAINNET_KEYWORDS.find(keyword =>
+        feed.feedFullName.includes(keyword)
+      )
+
       const msToBeUpdated = getMsToBeUpdated(dateNow, feed)
       const isOutdated = isFeedOutdated(msToBeUpdated)
       const statusHasChanged = acc[feed.feedFullName] !== isOutdated
 
-      if (statusHasChanged) {
-        shouldNotify = true
+      if (statusHasChanged && isMainnetFeed) {
+        shouldNotifyMainnet = true
       }
+
+      if (statusHasChanged && !isMainnetFeed) {
+        shouldNotifyTestnet = true
+      }
+
+      const messages = isMainnetFeed ? mainnetMessages : testnetMessages
 
       messages.push(
         createMessage(
@@ -42,8 +55,12 @@ export class DataFeedMonitor {
       return { ...acc, [feed.feedFullName]: isOutdated }
     }, this.state)
 
-    if (shouldNotify) {
-      this.sendTelegramMessage(messages.join('\n'))
+    if (shouldNotifyMainnet) {
+      this.sendTelegramMessage(mainnetMessages.join('\n'))
+    }
+
+    if (shouldNotifyTestnet) {
+      this.sendTelegramMessage(testnetMessages.join('\n'))
     }
 
     return

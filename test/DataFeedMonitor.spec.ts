@@ -93,11 +93,11 @@ describe('DataFeedMonitor', () => {
 
       expect(FeedStatus.isFeedOutdated).toHaveBeenNthCalledWith(
         1,
-        -1638460382927
+        -1638460382928
       )
       expect(FeedStatus.isFeedOutdated).toHaveBeenNthCalledWith(
         2,
-        1636822920617073
+        1636822920617072
       )
     })
 
@@ -117,7 +117,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '*❌ feedFullname2 > 3d*',
+        'TESTNET FEEDS\n\n*❌ feedFullname2 > 3d*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -140,7 +140,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '*❌ feedFullname2 > 3d*',
+        'TESTNET FEEDS\n\n*❌ feedFullname2 > 3d*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -163,7 +163,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '*❌ feedFullname2 1h 23m*',
+        'TESTNET FEEDS\n\n*❌ feedFullname2 1h 23m*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -184,7 +184,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '*✅ feedFullname2*',
+        'TESTNET FEEDS\n\n*✅ feedFullname2*',
         { parse_mode: 'Markdown' }
       )
     })

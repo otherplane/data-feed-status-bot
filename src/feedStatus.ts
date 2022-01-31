@@ -6,7 +6,7 @@ export function isFeedOutdated (msToBeUpdated: number): boolean {
 
 export function getMsToBeUpdated (
   dateNow: number,
-  { heartbeat, requests }: Feed
+  { heartbeat, requests }: Omit<Feed, 'finality' | 'feedFullName'> 
 ) {
   const admissibleDelayCorrection = process.env.ADMISSIBLE_DELAY
     ? parseInt(process.env.ADMISSIBLE_DELAY)

@@ -8,7 +8,8 @@
     "dev": "nodemon",
     "lint": "prettier-standard --format",
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "docker:build": "docker build -t witnet/data-feed-status-bot ."
   },
   "author": "Other Plane Labs",
   "license": "MIT",

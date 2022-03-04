@@ -7,13 +7,8 @@ export function fetchFeedsApi (
   client: GraphQLClient
 ): Promise<ApiSuccessResponse> {
   const query = gql`
-    query feeds(
-      $page: Int!
-      $pageSize: Int!
-      $network: String!
-      $timestamp: Int!
-    ) {
-      feeds(page: $page, pageSize: $pageSize, network: $network) {
+    query feeds($network: String!, $timestamp: Int!) {
+      feeds(network: $network) {
         feeds {
           feedFullName
           name
@@ -31,8 +26,6 @@ export function fetchFeedsApi (
     }
   `
   const variables = {
-    page: 1,
-    pageSize: 100,
     network: 'all',
     // get requests from past 2 days
     timestamp:

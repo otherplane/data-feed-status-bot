@@ -3,56 +3,64 @@ import { GraphQLClient } from 'graphql-request'
 import TelegramBot from 'node-telegram-bot-api'
 import { DataFeedMonitor } from '../src/DataFeedMonitor'
 import * as FeedStatus from '../src/feedStatus'
+import { ApiSuccessResponse, Feed } from '../src/types'
 
-const FEEDS = [
+const FEEDS: Array<Feed> = [
   {
     heartbeat: '1000',
     finality: '1',
     feedFullName: 'feedFullname1',
-    requests: [{ feedFullName: 'feedFullName1', timestamp: '1000' }]
+    lastResultTimestamp: '1000',
+    address: 'address1',
+    lastResult: '1',
+    name: 'name1'
   },
   {
     heartbeat: '1000',
     finality: '1',
     feedFullName: 'feedFullname2',
-    requests: [{ feedFullName: 'feedFullName2', timestamp: '1638461382000' }]
+    lastResultTimestamp: '1638461382000',
+    address: 'address2',
+    lastResult: '2',
+    name: 'name2'
   }
 ]
 
-const FEED_SINGLE_RESPONSE = {
+const FEED_SINGLE_RESPONSE: ApiSuccessResponse = {
   feeds: {
     feeds: [
       {
         heartbeat: '1000',
         finality: '1',
         feedFullName: 'feedFullname2',
-        requests: [{ feedFullName: 'feedFullName2', timestamp: '1000' }]
+        lastResultTimestamp: '1000',
+        address: 'address2',
+        lastResult: '2',
+        name: 'name2'
       }
     ]
   },
   total: 1
 }
 
-const FEED_SINGLE_RESPONSE_2 = {
+const FEED_SINGLE_RESPONSE_2: ApiSuccessResponse = {
   feeds: {
     feeds: [
       {
         heartbeat: '1000',
         finality: '1',
         feedFullName: 'feedFullname2',
-        requests: [
-          {
-            feedFullName: 'feedFullName2',
-            timestamp: (1638461384 - 5000).toString()
-          }
-        ]
+        lastResultTimestamp: (1638461384 - 5000).toString(),
+        address: 'address2',
+        lastResult: '2',
+        name: 'name2'
       }
     ]
   },
   total: 1
 }
 
-const FEED_MULTIPLE_RESPONSE = {
+const FEED_MULTIPLE_RESPONSE: ApiSuccessResponse = {
   feeds: {
     feeds: FEEDS
   },

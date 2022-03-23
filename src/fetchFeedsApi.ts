@@ -14,23 +14,16 @@ export function fetchFeedsApi (
           name
           address
           lastResult
+          lastResultTimestamp
           heartbeat
           finality
-          requests(timestamp: $timestamp) {
-            feedFullName
-            timestamp
-          }
         }
         total
       }
     }
   `
   const variables = {
-    network: 'all',
-    // get requests from past 2 days
-    timestamp:
-      Math.floor(Date.now() / 1000) -
-      3600 * 24 * parseInt(process.env.DAYS_TO_REQUEST || '1')
+    network: 'all'
   }
 
   return client.request(query, variables)

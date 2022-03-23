@@ -1,5 +1,5 @@
 import { FAST_UPDATE_FEED_KEYWORDS } from './constants'
-import { Feed, Request } from './types'
+import { Feed } from './types'
 
 export function isFeedOutdated (msToBeUpdated: number): boolean {
   return msToBeUpdated < 0
@@ -7,7 +7,11 @@ export function isFeedOutdated (msToBeUpdated: number): boolean {
 
 export function getMsToBeUpdated (
   dateNow: number,
-  { heartbeat, requests, feedFullName }: Omit<Feed, 'finality'>
+  {
+    heartbeat,
+    lastResultTimestamp,
+    feedFullName
+  }: Pick<Feed, 'heartbeat' | 'lastResultTimestamp' | 'feedFullName'>
 ) {
   const ADMISSIBLE_DELAY =
     process.env.ADMISIBLE_DELAY &&
@@ -22,15 +26,7 @@ export function getMsToBeUpdated (
     admissibleDelayCorrection
   )
 
-  const lastRequest = getLastRequest(requests)
-  if (!lastRequest) {
-    return -(
-      Date.now() -
-      24 * 3600 * 1000 * parseInt(process.env.DAYS_TO_REQUEST || '1')
-    )
-  }
-
-  const msSinceLastUpdate = dateNow - parseInt(lastRequest.timestamp) * 1000
+  const msSinceLastUpdate = dateNow - Number(lastResultTimestamp) * 1000
   const msToBeUpdated = admissibleDelay - msSinceLastUpdate
 
   // console.log(
@@ -49,10 +45,4 @@ function calculateAdmissibleDelay (
   return admissibleDelayCorrection
     ? Math.floor(heartbeat + heartbeat / admissibleDelayCorrection)
     : heartbeat
-}
-
-function getLastRequest (requests: Array<Request>): Request | undefined {
-  return requests.sort(
-    (first, second) => parseInt(second.timestamp) - parseInt(first.timestamp)
-  )[0]
 }

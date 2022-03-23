@@ -1,9 +1,11 @@
-export type Request = { timestamp: string; feedFullName: string }
 export type Feed = {
-  heartbeat: string
+  address: string
   feedFullName: string
   finality: string
-  requests: Array<Request>
+  heartbeat: string
+  lastResult: string
+  lastResultTimestamp: string
+  name: string
 }
 
 export type ApiSuccessResponse = {

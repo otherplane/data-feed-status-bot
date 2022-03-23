@@ -7,7 +7,7 @@ export function fetchFeedsApi (
   client: GraphQLClient
 ): Promise<ApiSuccessResponse> {
   const query = gql`
-    query feeds($network: String!, $timestamp: Int!) {
+    query feeds($network: String!) {
       feeds(network: $network) {
         feeds {
           feedFullName

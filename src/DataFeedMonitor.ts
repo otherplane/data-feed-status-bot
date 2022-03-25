@@ -104,7 +104,7 @@ function createMessage (
   secondsToBeUpdated -= minutes * 60
 
   let timeOutdatedString
-  if (days && days > parseInt(process.env.DAYS_TO_REQUEST || '1')) {
+  if (days && days > Number(process.env.DAYS_TO_REQUEST || '1')) {
     timeOutdatedString = `> ${process.env.DAYS_TO_REQUEST}d`
   } else if (days) {
     timeOutdatedString = `${days}d ${hours}h ${minutes}m`

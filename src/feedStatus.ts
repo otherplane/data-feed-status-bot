@@ -19,10 +19,10 @@ export function getMsToBeUpdated (
       ? process.env.ADMISSIBLE_DELAY_LONG
       : process.env.ADMISSIBLE_DELAY
   const admissibleDelayCorrection = ADMISSIBLE_DELAY
-    ? parseInt(ADMISSIBLE_DELAY)
+    ? Number(ADMISSIBLE_DELAY)
     : undefined
   const admissibleDelay = calculateAdmissibleDelay(
-    parseInt(heartbeat),
+    Number(heartbeat),
     admissibleDelayCorrection
   )
 

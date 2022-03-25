@@ -13,19 +13,21 @@ export function getMsToBeUpdated (
     feedFullName
   }: Pick<Feed, 'heartbeat' | 'lastResultTimestamp' | 'feedFullName'>
 ) {
+
   const ADMISSIBLE_DELAY =
-    process.env.ADMISIBLE_DELAY &&
+    process.env.ADMISSIBLE_DELAY &&
     FAST_UPDATE_FEED_KEYWORDS.find(keyword => feedFullName.includes(keyword))
       ? process.env.ADMISSIBLE_DELAY_LONG
       : process.env.ADMISSIBLE_DELAY
   const admissibleDelayCorrection = ADMISSIBLE_DELAY
     ? Number(ADMISSIBLE_DELAY)
     : undefined
+
   const admissibleDelay = calculateAdmissibleDelay(
     Number(heartbeat),
     admissibleDelayCorrection
   )
-
+  
   const msSinceLastUpdate = dateNow - Number(lastResultTimestamp) * 1000
   const msToBeUpdated = admissibleDelay - msSinceLastUpdate
 

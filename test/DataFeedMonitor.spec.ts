@@ -42,6 +42,22 @@ const FEED_SINGLE_RESPONSE: ApiSuccessResponse = {
   },
   total: 1
 }
+const FEED_SINGLE_RESPONSE_MAINNET: ApiSuccessResponse = {
+  feeds: {
+    feeds: [
+      {
+        heartbeat: '1000',
+        finality: '1',
+        feedFullName: 'feedFullname2mainnet',
+        lastResultTimestamp: '1000',
+        address: 'address2',
+        lastResult: '2',
+        name: 'name2mainnet'
+      }
+    ]
+  },
+  total: 1
+}
 
 const FEED_SINGLE_RESPONSE_2: ApiSuccessResponse = {
   feeds: {
@@ -70,7 +86,8 @@ const FEED_MULTIPLE_RESPONSE: ApiSuccessResponse = {
 describe('DataFeedMonitor', () => {
   describe('.checkFeedStatus', () => {
     const graphqlClientMock = jest.fn()
-    const telegramBotMock = { sendMessage: jest.fn() }
+    const telegramTestnetBotMock = { sendMessage: jest.fn() }
+    const telegramMainnetBotMock = { sendMessage: jest.fn() }
 
     it('should call fetchFeedsApi with graphql client', async () => {
       jest
@@ -78,7 +95,10 @@ describe('DataFeedMonitor', () => {
         .mockReturnValue(Promise.resolve(FEED_MULTIPLE_RESPONSE))
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
-        (telegramBotMock as unknown) as TelegramBot
+        {
+          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+        }
       )
 
       await dataFeedMonitor.checkFeedsStatus()
@@ -93,7 +113,10 @@ describe('DataFeedMonitor', () => {
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
-        (telegramBotMock as unknown) as TelegramBot
+        {
+          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+        }
       )
       const dateNow = 1638461384178
 
@@ -109,25 +132,54 @@ describe('DataFeedMonitor', () => {
       )
     })
 
-    it('should send a telegram message if feed is outdated and its the first time checking that feed', async () => {
-      jest
-        .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
+    describe('should send a telegram message if feed is outdated and its the first time checking that feed', () => {
+      it('testnet', async () => {
+        jest
+          .spyOn(FetchFeedsApi, 'fetchFeedsApi')
+          .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
 
-      jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
-      const dataFeedMonitor = new DataFeedMonitor(
-        (graphqlClientMock as unknown) as GraphQLClient,
-        (telegramBotMock as unknown) as TelegramBot
-      )
-      const dateNow = 1638461384178
+        jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
+        const dataFeedMonitor = new DataFeedMonitor(
+          (graphqlClientMock as unknown) as GraphQLClient,
+          {
+            mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+            testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+          }
+        )
+        const dateNow = 1638461384178
 
-      await dataFeedMonitor.checkFeedsStatus(dateNow)
+        await dataFeedMonitor.checkFeedsStatus(dateNow)
 
-      expect(telegramBotMock.sendMessage).toBeCalledWith(
-        expect.any(String),
-        'TESTNET FEEDS\n\n*❌ feedFullname2 > 3d*',
-        { parse_mode: 'Markdown' }
-      )
+        expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
+          expect.any(String),
+          'TESTNET FEEDS\n\n*❌ feedFullname2 > 3d*',
+          { parse_mode: 'Markdown' }
+        )
+      })
+
+      it('mainnet', async () => {
+        jest
+          .spyOn(FetchFeedsApi, 'fetchFeedsApi')
+          .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE_MAINNET))
+
+        jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
+        const dataFeedMonitor = new DataFeedMonitor(
+          (graphqlClientMock as unknown) as GraphQLClient,
+          {
+            mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+            testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+          }
+        )
+        const dateNow = 1638461384178
+
+        await dataFeedMonitor.checkFeedsStatus(dateNow)
+
+        expect(telegramMainnetBotMock.sendMessage).toBeCalledWith(
+          expect.any(String),
+          'MAINNET FEEDS\n\n*❌ feedFullname2mainnet > 3d*',
+          { parse_mode: 'Markdown' }
+        )
+      })
     })
 
     it('should send a telegram message if feed is outdated and its status has change from last call', async () => {
@@ -140,13 +192,16 @@ describe('DataFeedMonitor', () => {
         .mockReturnValueOnce(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
-        (telegramBotMock as unknown) as TelegramBot
+        {
+          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+        }
       )
       const dateNow = 1638461384178
 
       await dataFeedMonitor.checkFeedsStatus(dateNow)
 
-      expect(telegramBotMock.sendMessage).toBeCalledWith(
+      expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         'TESTNET FEEDS\n\n*❌ feedFullname2 > 3d*',
         { parse_mode: 'Markdown' }
@@ -163,13 +218,16 @@ describe('DataFeedMonitor', () => {
         .mockReturnValueOnce(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
-        (telegramBotMock as unknown) as TelegramBot
+        {
+          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+        }
       )
       const dateNow = 1638461384178
 
       await dataFeedMonitor.checkFeedsStatus(dateNow)
 
-      expect(telegramBotMock.sendMessage).toBeCalledWith(
+      expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         'TESTNET FEEDS\n\n*❌ feedFullname2 1h 23m*',
         { parse_mode: 'Markdown' }
@@ -183,14 +241,17 @@ describe('DataFeedMonitor', () => {
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
-        (telegramBotMock as unknown) as TelegramBot
+        {
+          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+        }
       )
       const dateNow = 1638461384178
 
       await dataFeedMonitor.checkFeedsStatus(dateNow)
       await dataFeedMonitor.checkFeedsStatus(dateNow + 10000)
 
-      expect(telegramBotMock.sendMessage).toBeCalledWith(
+      expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         'TESTNET FEEDS\n\n*✅ feedFullname2*',
         { parse_mode: 'Markdown' }
@@ -204,7 +265,10 @@ describe('DataFeedMonitor', () => {
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
-        (telegramBotMock as unknown) as TelegramBot,
+        {
+          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+        },
         // pass a state where last response to feedFullName was outdated
         { [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: true }
       )
@@ -212,7 +276,7 @@ describe('DataFeedMonitor', () => {
 
       await dataFeedMonitor.checkFeedsStatus(dateNow)
 
-      expect(telegramBotMock.sendMessage).not.toBeCalled()
+      expect(telegramTestnetBotMock.sendMessage).not.toBeCalled()
     })
 
     it('should NOT send a telegram message if feed is NOT outdated and last check was also NOT outdated', async () => {
@@ -225,7 +289,10 @@ describe('DataFeedMonitor', () => {
         .mockReturnValue(false)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
-        (telegramBotMock as unknown) as TelegramBot,
+        {
+          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+        },
         // pass a state where last response to feedFullName was NOT outdated
         { [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: false }
       )
@@ -233,7 +300,7 @@ describe('DataFeedMonitor', () => {
 
       await dataFeedMonitor.checkFeedsStatus(dateNow + 10000)
 
-      expect(telegramBotMock.sendMessage).not.toBeCalled()
+      expect(telegramTestnetBotMock.sendMessage).not.toBeCalled()
     })
   })
 })

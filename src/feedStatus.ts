@@ -13,7 +13,6 @@ export function getMsToBeUpdated (
     feedFullName
   }: Pick<Feed, 'heartbeat' | 'lastResultTimestamp' | 'feedFullName'>
 ) {
-
   const ADMISSIBLE_DELAY =
     process.env.ADMISSIBLE_DELAY &&
     FAST_UPDATE_FEED_KEYWORDS.find(keyword => feedFullName.includes(keyword))
@@ -27,7 +26,7 @@ export function getMsToBeUpdated (
     Number(heartbeat),
     admissibleDelayCorrection
   )
-  
+
   const msSinceLastUpdate = dateNow - Number(lastResultTimestamp) * 1000
   const msToBeUpdated = admissibleDelay - msSinceLastUpdate
 

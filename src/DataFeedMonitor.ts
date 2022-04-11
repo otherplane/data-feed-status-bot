@@ -6,13 +6,31 @@ import { getMsToBeUpdated, isFeedOutdated } from './feedStatus'
 import { Feed } from './types'
 import { MAINNET_KEYWORDS } from './constants'
 
+export enum Network {
+  Mainnet,
+  Testnet
+}
+
 export class DataFeedMonitor {
+  private graphQLClient: GraphQLClient
+  private mainnetBot: TelegramBot
+  private testnetBot: TelegramBot
+  // store data feed name and its last status
+  private state: Record<string, boolean> = {}
+
   constructor (
-    private graphQLClient: GraphQLClient,
-    private telegramBot: TelegramBot,
-    // store data feed name and its last status
-    private state: Record<string, boolean> = {}
-  ) {}
+    graphQLClient: GraphQLClient,
+    {
+      mainnetBot,
+      testnetBot
+    }: { mainnetBot: TelegramBot; testnetBot: TelegramBot },
+    state: Record<string, boolean> = {}
+  ) {
+    this.graphQLClient = graphQLClient
+    this.mainnetBot = mainnetBot
+    this.testnetBot = testnetBot
+    this.state = state
+  }
 
   public async checkFeedsStatus (dateNow: number = Date.now()) {
     const {
@@ -55,25 +73,35 @@ export class DataFeedMonitor {
       return { ...acc, [feed.feedFullName]: isOutdated }
     }, this.state)
 
-    if (shouldNotifyMainnet) {
-      this.sendTelegramMessage(mainnetMessages.join('\n'))
-    }
+    // if (shouldNotifyMainnet) {
+    //   this.sendTelegramMessage(Network.Mainnet, mainnetMessages.join('\n'))
+    // }
 
     if (shouldNotifyTestnet) {
-      this.sendTelegramMessage(testnetMessages.join('\n'))
+      this.sendTelegramMessage(Network.Testnet, testnetMessages.join('\n'))
     }
 
     return
   }
 
-  public async sendTelegramMessage (message: string) {
+  public async sendTelegramMessage (network: Network, message: string) {
+    const credentialsByNetwork = {
+      [Network.Mainnet]: {
+        telegramBot: this.mainnetBot,
+        channelId: process.env.CHANNEL_ID_MAINNET
+      },
+      [Network.Testnet]: {
+        telegramBot: this.testnetBot,
+        channelId: process.env.CHANNEL_ID_TESTNET
+      }
+    }
+    const { telegramBot, channelId } = credentialsByNetwork[network]
+
     try {
       // if CHANNEL_ID is not found at the beginning will throw an error
-      return await this.telegramBot.sendMessage(
-        process.env.CHANNEL_ID as string,
-        message,
-        { parse_mode: 'Markdown' }
-      )
+      return await telegramBot.sendMessage(channelId as string, message, {
+        parse_mode: 'Markdown'
+      })
     } catch (err) {
       console.error(err)
     }

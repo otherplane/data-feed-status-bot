@@ -11,8 +11,10 @@ Send a notification to a telegram group when one of the data feeds is outdated.
    > :information_source: **If you don't know where to find the CHANNEL_ID**: You can find it at the end of the URL when you open your channel using [Telegram web](https://web.telegram.org)
 
    ```sh
-   TOKEN=telegram_bot_token
-   CHANNEL_ID=telegram_channel_id
+   TOKEN_BOT_TESTNET=telegram_bot_token
+   TOKEN_BOT_MAINNET=telegram_bot_token
+   CHANNEL_ID_TESTNET=telegram_channel_id
+   CHANNEL_ID_MAINNET=telegram_channel_id
    POLLING_INTERVAL=300000
    FEED_EXPLORER_API=https://feeds-api.witnet.io
    ```

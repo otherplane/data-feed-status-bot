@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "nodemon",
     "lint": "prettier-standard --format",
+    "check": "prettier-standard --check",
     "test": "jest",
     "build": "tsc",
     "docker:build": "docker build -t witnet/data-feed-status-bot ."

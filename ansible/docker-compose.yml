@@ -1,0 +1,7 @@
+version: "3.9"
+
+services:
+  monitor:
+    image: 'data-feed-status-bot'
+    env_file:
+      - /home/ubuntu/data-feed-status-bot/.env

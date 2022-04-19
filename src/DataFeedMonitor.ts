@@ -73,9 +73,9 @@ export class DataFeedMonitor {
       return { ...acc, [feed.feedFullName]: isOutdated }
     }, this.state)
 
-    // if (shouldNotifyMainnet) {
-    //   this.sendTelegramMessage(Network.Mainnet, mainnetMessages.join('\n'))
-    // }
+    if (shouldNotifyMainnet) {
+      this.sendTelegramMessage(Network.Mainnet, mainnetMessages.join('\n'))
+    }
 
     if (shouldNotifyTestnet) {
       this.sendTelegramMessage(Network.Testnet, testnetMessages.join('\n'))

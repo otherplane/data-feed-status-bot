@@ -1,0 +1,37 @@
+---
+- hosts: all
+  tasks:
+    - name: Create Deployment Directory
+      file:
+        path: /home/ubuntu/data-feed-status-bot
+        state: directory
+
+    - name: Copy .env File
+      copy:
+        src: ./.env
+        dest: /home/ubuntu/data-feed-status-bot/.env
+
+    - name: Copy Docker Swarm Stack File
+      copy:
+        src: ./docker-compose.yml
+        dest: /home/ubuntu/data-feed-status-bot/docker-compose.yml
+
+    - name: Stack History limit
+      shell: docker swarm update --task-history-limit 0
+
+    - name: Deploy Docker Stack
+      shell: |
+        cd /home/ubuntu/data-feed-status-bot
+        docker stack deploy -c <(docker-compose config) dfsb
+        sleep 60
+      args:
+        executable: /bin/bash
+
+    - name: Prune Useless Docker Images
+      shell: |
+        docker container prune -f
+        docker image prune -a -f
+    - name: List Images & Containers for SHA256 Comparsion if needed
+      shell: |
+        docker image ls
+        docker stack ps dfsb

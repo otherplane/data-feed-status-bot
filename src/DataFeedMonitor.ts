@@ -5,18 +5,33 @@ import { fetchFeedsApi } from './fetchFeedsApi'
 import { getMsToBeUpdated, isFeedOutdated } from './feedStatus'
 import { Feed } from './types'
 import { MAINNET_KEYWORDS } from './constants'
+import { groupBy } from './groupBy'
 
-export enum Network {
+enum Network {
   Mainnet,
   Testnet
 }
+enum StatusEmoji {
+  Green = '🟢',
+  Yellow = '🟡',
+  Red = '🟥'
+}
+type FeedsStatusByNetwork = Record<FeedName, FeedStatusInfo>
+type FeedStatusInfo = {
+  isOutdated: boolean
+  msToBeUpdated: number
+  statusChanged: boolean
+}
+type NetworkName = string
+type FeedName = string
+type State = Record<NetworkName, Record<FeedName, FeedStatusInfo>>
 
 export class DataFeedMonitor {
   private graphQLClient: GraphQLClient
   private mainnetBot: TelegramBot
   private testnetBot: TelegramBot
   // store data feed name and its last status
-  private state: Record<string, boolean> = {}
+  private state: State = {}
 
   constructor (
     graphQLClient: GraphQLClient,
@@ -24,7 +39,7 @@ export class DataFeedMonitor {
       mainnetBot,
       testnetBot
     }: { mainnetBot: TelegramBot; testnetBot: TelegramBot },
-    state: Record<string, boolean> = {}
+    state: State = {}
   ) {
     this.graphQLClient = graphQLClient
     this.mainnetBot = mainnetBot
@@ -36,48 +51,57 @@ export class DataFeedMonitor {
     const {
       feeds: { feeds }
     } = await fetchFeedsApi(this.graphQLClient)
-    const mainnetMessages: Array<string> = ['MAINNET FEEDS\n']
-    const testnetMessages: Array<string> = ['TESTNET FEEDS\n']
+    const mainnetMessages: Array<string> = []
+    const testnetMessages: Array<string> = []
 
-    let shouldNotifyMainnet,
-      shouldNotifyTestnet = false
+    const monitorableFeeds = feeds.filter(feed => feed.heartbeat)
 
-    this.state = feeds.reduce((acc, feed: Feed) => {
-      const isMainnetFeed = MAINNET_KEYWORDS.find(keyword =>
-        feed.feedFullName.includes(keyword)
-      )
+    const feedsByNetwork = groupBy(monitorableFeeds, 'network')
+    this.state = Object.entries(feedsByNetwork).reduce(
+      (state: State, [network, networkFeeds]) => {
+        const feedsStatusByNetwork: FeedsStatusByNetwork = networkFeeds.reduce(
+          (acc, feed: Feed) => {
+            const msToBeUpdated = getMsToBeUpdated(dateNow, feed)
+            const isOutdated = isFeedOutdated(msToBeUpdated)
+            const statusChanged =
+              acc[feed.feedFullName]?.isOutdated !== isOutdated
 
-      const msToBeUpdated = getMsToBeUpdated(dateNow, feed)
-      const isOutdated = isFeedOutdated(msToBeUpdated)
-      const statusHasChanged = acc[feed.feedFullName] !== isOutdated
-
-      if (statusHasChanged && isMainnetFeed) {
-        shouldNotifyMainnet = true
-      }
-
-      if (statusHasChanged && !isMainnetFeed) {
-        shouldNotifyTestnet = true
-      }
-
-      const messages = isMainnetFeed ? mainnetMessages : testnetMessages
-
-      messages.push(
-        createMessage(
-          feed.feedFullName,
-          isOutdated,
-          msToBeUpdated,
-          statusHasChanged
+            return {
+              ...acc,
+              [feed.feedFullName]: {
+                isOutdated,
+                msToBeUpdated,
+                statusChanged
+              }
+            }
+          },
+          this.state[network] || {}
         )
-      )
 
-      return { ...acc, [feed.feedFullName]: isOutdated }
-    }, this.state)
+        const isMainnetFeed = MAINNET_KEYWORDS.find(keyword =>
+          network.includes(keyword)
+        )
 
-    if (shouldNotifyMainnet) {
+        const messages = isMainnetFeed ? mainnetMessages : testnetMessages
+        const message = createNetworkMessage(feedsStatusByNetwork, network)
+
+        if (message) {
+          messages.push(message)
+        }
+
+        return {
+          ...state,
+          [network]: feedsStatusByNetwork
+        }
+      },
+      this.state
+    )
+
+    if (mainnetMessages.length) {
       this.sendTelegramMessage(Network.Mainnet, mainnetMessages.join('\n'))
     }
 
-    if (shouldNotifyTestnet) {
+    if (testnetMessages.length) {
       this.sendTelegramMessage(Network.Testnet, testnetMessages.join('\n'))
     }
 
@@ -108,18 +132,48 @@ export class DataFeedMonitor {
   }
 }
 
-function createMessage (
-  feedFullName: string,
-  isOutdated: boolean,
-  msToBeUpdated: number,
-  statusChanged: boolean
-): string {
-  if (!isOutdated) {
-    const updatedMessage = `✅ ${feedFullName}`
-    // add bold style is status changed from previous call
-    return statusChanged ? `*${updatedMessage}*` : updatedMessage
+function createNetworkMessage (
+  feedsStatusByNetwork: FeedsStatusByNetwork,
+  network: string
+): string | null {
+  const feedInfos = Object.values(feedsStatusByNetwork)
+
+  const shouldSendMessage = feedInfos.reduce(
+    (shouldSendMessage, feed) => shouldSendMessage || feed.statusChanged,
+    false
+  )
+
+  if (!shouldSendMessage) {
+    return null
   }
 
+  const outdatedFeeds = feedInfos.filter(feedInfo => feedInfo.isOutdated)
+  const outdatedFeedsLength = outdatedFeeds.length
+  const feedsLength = feedInfos.length
+
+  const largestDelayMs = Math.min(
+    ...outdatedFeeds.map(feedInfo => feedInfo.msToBeUpdated)
+  )
+
+  // only use the delay if there are oudated feeds
+  const delay = outdatedFeeds.length
+    ? formatDelayString(largestDelayMs)
+    : undefined
+
+  let color: StatusEmoji
+  if (!outdatedFeedsLength) {
+    color = StatusEmoji.Green
+  } else if (outdatedFeedsLength !== feedsLength) {
+    color = StatusEmoji.Yellow
+  } else {
+    color = StatusEmoji.Red
+  }
+
+  return `${color} ${network} (${feedsLength -
+    outdatedFeedsLength}/${feedsLength}) ${delay ?? ''}`.trim()
+}
+
+function formatDelayString (msToBeUpdated: number): string {
   let secondsToBeUpdated = Math.floor((-1 * msToBeUpdated) / 1000)
 
   const days = Math.floor(secondsToBeUpdated / (60 * 60 * 24))
@@ -141,8 +195,5 @@ function createMessage (
   } else {
     timeOutdatedString = `${minutes}m`
   }
-
-  const outdatedMessage = `❌ ${feedFullName} ${timeOutdatedString}`
-  // add bold style is status changed from previous call
-  return statusChanged ? `*${outdatedMessage}*` : outdatedMessage
+  return timeOutdatedString
 }

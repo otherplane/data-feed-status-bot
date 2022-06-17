@@ -6,6 +6,7 @@ export type Feed = {
   lastResult: string
   lastResultTimestamp: string
   name: string
+  network: string
 }
 
 export type ApiSuccessResponse = {

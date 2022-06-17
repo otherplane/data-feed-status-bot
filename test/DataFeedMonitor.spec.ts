@@ -13,16 +13,18 @@ const FEEDS: Array<Feed> = [
     lastResultTimestamp: '1000',
     address: 'address1',
     lastResult: '1',
-    name: 'name1'
+    name: 'name1',
+    network: 'ethereum-mainnet'
   },
   {
     heartbeat: '1000',
     finality: '1',
     feedFullName: 'feedFullname2',
     lastResultTimestamp: '1638461382000',
-    address: 'address2',
+    address: '0x123456789abcdef123456789abcdef123456789a',
     lastResult: '2',
-    name: 'name2'
+    name: 'name2',
+    network: 'ethereum-rinkeby'
   }
 ]
 
@@ -34,9 +36,10 @@ const FEED_SINGLE_RESPONSE: ApiSuccessResponse = {
         finality: '1',
         feedFullName: 'feedFullname2',
         lastResultTimestamp: '1000',
-        address: 'address2',
+        address: '0x123456789abcdef123456789abcdef123456789a',
         lastResult: '2',
-        name: 'name2'
+        name: 'name2',
+        network: 'ethereum-goerli'
       }
     ]
   },
@@ -50,9 +53,10 @@ const FEED_SINGLE_RESPONSE_MAINNET: ApiSuccessResponse = {
         finality: '1',
         feedFullName: 'feedFullname2mainnet',
         lastResultTimestamp: '1000',
-        address: 'address2',
+        address: '0x123456789abcdef123456789abcdef123456789a',
         lastResult: '2',
-        name: 'name2mainnet'
+        name: 'name2mainnet',
+        network: 'ethereum-mainnet'
       }
     ]
   },
@@ -67,9 +71,10 @@ const FEED_SINGLE_RESPONSE_2: ApiSuccessResponse = {
         finality: '1',
         feedFullName: 'feedFullname2',
         lastResultTimestamp: (1638461384 - 5000).toString(),
-        address: 'address2',
+        address: '0x123456789abcdef123456789abcdef123456789a',
         lastResult: '2',
-        name: 'name2'
+        name: 'name2',
+        network: 'ethereum-goerli'
       }
     ]
   },
@@ -81,6 +86,58 @@ const FEED_MULTIPLE_RESPONSE: ApiSuccessResponse = {
     feeds: FEEDS
   },
   total: 2
+}
+const FEEDS_ETHEREUM_RINKEBY: Array<Feed> = [
+  {
+    heartbeat: '1000',
+    finality: '1',
+    feedFullName: 'feedFullname1',
+    lastResultTimestamp: '1000',
+    address: 'address1',
+    lastResult: '1',
+    name: 'name1',
+    network: 'ethereum-rinkeby'
+  },
+  {
+    heartbeat: '1000',
+    finality: '1',
+    feedFullName: 'feedFullname2',
+    lastResultTimestamp: '1000',
+    address: '0x123456789abcdef123456789abcdef123456789a',
+    lastResult: '2',
+    name: 'name2',
+    network: 'ethereum-rinkeby'
+  }
+]
+
+const FEEDS_ETHEREUM_GOERLI: Array<Feed> = [
+  {
+    heartbeat: '1000',
+    finality: '1',
+    feedFullName: 'feedFullname1',
+    lastResultTimestamp: '1000',
+    address: 'address1',
+    lastResult: '1',
+    name: 'name1',
+    network: 'ethereum-goerli'
+  },
+  {
+    heartbeat: '1000',
+    finality: '1',
+    feedFullName: 'feedFullname2',
+    lastResultTimestamp: '1000',
+    address: '0x123456789abcdef123456789abcdef123456789a',
+    lastResult: '2',
+    name: 'name2',
+    network: 'ethereum-goerli'
+  }
+]
+
+const FEED_MULTIPLE_NETWORKS_RESPONSE: ApiSuccessResponse = {
+  feeds: {
+    feeds: [...FEEDS_ETHEREUM_GOERLI, ...FEEDS_ETHEREUM_RINKEBY]
+  },
+  total: 4
 }
 
 describe('DataFeedMonitor', () => {
@@ -132,6 +189,87 @@ describe('DataFeedMonitor', () => {
       )
     })
 
+    describe('should send the correct number of down feeds in the message', () => {
+      describe('first time calling them', () => {
+        it('should send a green message if all feeds are updated', async () => {
+          jest
+            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
+            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+
+          jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
+          const dataFeedMonitor = new DataFeedMonitor(
+            (graphqlClientMock as unknown) as GraphQLClient,
+            {
+              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+            }
+          )
+          const dateNow = 1638461384178
+
+          await dataFeedMonitor.checkFeedsStatus(dateNow)
+
+          expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
+            expect.any(String),
+            '🟢 ethereum-goerli (2/2)\n🟢 ethereum-rinkeby (2/2)',
+            { parse_mode: 'Markdown' }
+          )
+        })
+
+        it('should send a yellow message if some feeds are oudated', async () => {
+          jest
+            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
+            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+
+          jest
+            .spyOn(FeedStatus, 'isFeedOutdated')
+            .mockReturnValueOnce(false)
+            .mockReturnValueOnce(true)
+            .mockReturnValueOnce(false)
+            .mockReturnValueOnce(true)
+          const dataFeedMonitor = new DataFeedMonitor(
+            (graphqlClientMock as unknown) as GraphQLClient,
+            {
+              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+            }
+          )
+          const dateNow = 1638461384178
+
+          await dataFeedMonitor.checkFeedsStatus(dateNow)
+
+          expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
+            expect.any(String),
+            '🟡 ethereum-goerli (1/2) > 3d\n🟡 ethereum-rinkeby (1/2) > 3d',
+            { parse_mode: 'Markdown' }
+          )
+        })
+
+        it('should send a red message if all of them are outdated', async () => {
+          jest
+            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
+            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+
+          jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
+          const dataFeedMonitor = new DataFeedMonitor(
+            (graphqlClientMock as unknown) as GraphQLClient,
+            {
+              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+            }
+          )
+          const dateNow = 1638461384178
+
+          await dataFeedMonitor.checkFeedsStatus(dateNow)
+
+          expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
+            expect.any(String),
+            '🟥 ethereum-goerli (0/2) > 3d\n🟥 ethereum-rinkeby (0/2) > 3d',
+            { parse_mode: 'Markdown' }
+          )
+        })
+      })
+    })
+
     describe('should send a telegram message if feed is outdated and its the first time checking that feed', () => {
       it('testnet', async () => {
         jest
@@ -152,7 +290,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          'TESTNET FEEDS\n\n*❌ feedFullname2 > 3d*',
+          '🟥 ethereum-goerli (0/1) > 3d',
           { parse_mode: 'Markdown' }
         )
       })
@@ -176,7 +314,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramMainnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          'MAINNET FEEDS\n\n*❌ feedFullname2mainnet > 3d*',
+          '🟥 ethereum-mainnet (0/1) > 3d',
           { parse_mode: 'Markdown' }
         )
       })
@@ -203,7 +341,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        'TESTNET FEEDS\n\n*❌ feedFullname2 > 3d*',
+        '🟥 ethereum-goerli (0/1) > 3d',
         { parse_mode: 'Markdown' }
       )
     })
@@ -229,7 +367,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        'TESTNET FEEDS\n\n*❌ feedFullname2 1h 23m*',
+        '🟥 ethereum-goerli (0/1) 1h 23m',
         { parse_mode: 'Markdown' }
       )
     })
@@ -253,7 +391,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        'TESTNET FEEDS\n\n*✅ feedFullname2*',
+        '🟢 ethereum-goerli (1/1)',
         { parse_mode: 'Markdown' }
       )
     })
@@ -270,7 +408,15 @@ describe('DataFeedMonitor', () => {
           testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
         },
         // pass a state where last response to feedFullName was outdated
-        { [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: true }
+        {
+          'ethereum-goerli': {
+            [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: {
+              isOutdated: true,
+              msToBeUpdated: -100000,
+              statusChanged: false
+            }
+          }
+        }
       )
       const dateNow = 1638461384178
 
@@ -294,7 +440,15 @@ describe('DataFeedMonitor', () => {
           testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
         },
         // pass a state where last response to feedFullName was NOT outdated
-        { [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: false }
+        {
+          'ethereum-goerli': {
+            [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: {
+              isOutdated: false,
+              msToBeUpdated: 100000,
+              statusChanged: false
+            }
+          }
+        }
       )
       const dateNow = 1638461384178
 

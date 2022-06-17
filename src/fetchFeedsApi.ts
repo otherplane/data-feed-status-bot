@@ -17,6 +17,7 @@ export function fetchFeedsApi (
           lastResultTimestamp
           heartbeat
           finality
+          network
         }
         total
       }

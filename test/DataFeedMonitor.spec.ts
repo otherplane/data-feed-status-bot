@@ -181,11 +181,11 @@ describe('DataFeedMonitor', () => {
 
       expect(FeedStatus.isFeedOutdated).toHaveBeenNthCalledWith(
         1,
-        -1638460382928
+        -1638460383178
       )
       expect(FeedStatus.isFeedOutdated).toHaveBeenNthCalledWith(
         2,
-        1636822920617072
+        1636822920616822
       )
     })
 

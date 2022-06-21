@@ -14,7 +14,7 @@ describe('getMsToBeUpdated', () => {
       lastResultTimestamp
     })
 
-    expect(msToBeUpdated).toBe(4097258)
+    expect(msToBeUpdated).toBe(2972258)
   })
 
   it('should return true if the heartbeat is LOWER than the difference between current timestamp and last request timestamp', () => {
@@ -23,12 +23,13 @@ describe('getMsToBeUpdated', () => {
     const heartbeat = '4500000'
     const feedFullName = 'feed'
 
-    const isOutdated = getMsToBeUpdated(currentTimestamp, {
-      feedFullName,
-      heartbeat,
-      lastResultTimestamp
-    })
+    const isOutdated =
+      getMsToBeUpdated(currentTimestamp, {
+        feedFullName,
+        heartbeat,
+        lastResultTimestamp
+      }) < 0
 
-    expect(isOutdated).toBe(-52857742)
+    expect(isOutdated).toBe(true)
   })
 })

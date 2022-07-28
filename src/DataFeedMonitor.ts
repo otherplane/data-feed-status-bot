@@ -169,8 +169,14 @@ function createNetworkMessage (
     color = StatusEmoji.Red
   }
 
-  return `${color} ${network} (${feedsLength -
+  const statusHasChanged = feedInfos.find(
+    feedStatusInfo => feedStatusInfo.statusChanged
+  )
+
+  const message = `${color} ${network} (${feedsLength -
     outdatedFeedsLength}/${feedsLength}) ${delay ?? ''}`.trim()
+
+  return statusHasChanged ? `${message} 🏁` : message
 }
 
 function formatDelayString (msToBeUpdated: number): string {

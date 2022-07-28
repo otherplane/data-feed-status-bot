@@ -186,8 +186,9 @@ function formatDelayString (msToBeUpdated: number): string {
   secondsToBeUpdated -= minutes * 60
 
   let timeOutdatedString
-  if (days && days > Number(process.env.DAYS_TO_REQUEST || '1')) {
-    timeOutdatedString = `> ${process.env.DAYS_TO_REQUEST}d`
+  const daysToRequest = Number(process.env.DAYS_TO_REQUEST || '2')
+  if (days && days > daysToRequest) {
+    timeOutdatedString = `> ${daysToRequest}d`
   } else if (days) {
     timeOutdatedString = `${days}d ${hours}h ${minutes}m`
   } else if (hours) {

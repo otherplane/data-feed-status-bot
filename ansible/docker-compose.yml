@@ -2,6 +2,6 @@ version: "3.9"
 
 services:
   monitor:
-    image: 'data-feed-status-bot'
+    image: witnet/data-feed-status-bot:latest
     env_file:
       - /home/ubuntu/data-feed-status-bot/.env

@@ -14,7 +14,7 @@ enum Network {
 enum StatusEmoji {
   Green = '🟢',
   Yellow = '🟡',
-  Red = '🟥'
+  Red = '🔴'
 }
 type FeedsStatusByNetwork = Record<FeedName, FeedStatusInfo>
 type FeedStatusInfo = {

@@ -162,7 +162,7 @@ function createNetworkMessage (
     ...outdatedFeeds.map(feedInfo => feedInfo.msToBeUpdated)
   )
 
-  // only use the delay if there are oudated feeds
+  // only use the delay if there are outdated feeds
   const delay = outdatedFeeds.length
     ? formatDelayString(largestDelayMs)
     : undefined

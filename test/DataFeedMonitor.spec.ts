@@ -314,7 +314,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramMainnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          '*🔴 ethereum.mainnet 0/1 (> 3d)*',
+          '❤️ 1 / 1\n\n*🔴 ethereum.mainnet 0/1 (> 3d)*',
           { parse_mode: 'Markdown' }
         )
       })

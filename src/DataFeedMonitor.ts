@@ -16,6 +16,13 @@ enum StatusEmoji {
   Yellow = '🟡',
   Red = '🔴'
 }
+
+enum GlobalStatusEmoji {
+  Green = '💚',
+  Yellow = '💛',
+  Red = '❤️'
+}
+
 type FeedsStatusByNetwork = Record<FeedName, FeedStatusInfo>
 type FeedStatusInfo = {
   isOutdated: boolean
@@ -99,8 +106,13 @@ export class DataFeedMonitor {
         },
         []
       )
+
     if (isFirstCheck || shouldSendMessages.mainnet) {
       const messages = createMessages(mainnetState)
+      const globalStatusMessage = createGlobalStatusMessage(messages)
+
+      messages.unshift(globalStatusMessage + '\n')
+
       this.sendTelegramMessage(Network.Mainnet, messages.join('\n'))
     }
 
@@ -248,4 +260,26 @@ function splitStateByKind (state: State) {
       testnetState: State
     }
   )
+}
+
+function createGlobalStatusMessage (messages: Array<string>) {
+  const total = messages.length
+  const totalFeedsUp = messages.filter(message =>
+    message.includes(StatusEmoji.Green)
+  ).length
+  const totalFeedsDown = total - totalFeedsUp
+  const isNetworkDown = messages.find(message =>
+    message.includes(StatusEmoji.Red)
+  )
+
+  let globalStatusEmoji
+  if (isNetworkDown) {
+    globalStatusEmoji = GlobalStatusEmoji.Red
+  } else if (totalFeedsUp !== total) {
+    globalStatusEmoji = GlobalStatusEmoji.Yellow
+  } else {
+    globalStatusEmoji = GlobalStatusEmoji.Green
+  }
+
+  return `${globalStatusEmoji} ${totalFeedsDown} / ${total}`
 }

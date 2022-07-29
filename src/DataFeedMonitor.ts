@@ -171,7 +171,7 @@ function createNetworkMessage (
   const message = `${color} ${network} (${feedsLength -
     outdatedFeedsLength}/${feedsLength}) ${delay ?? ''}`.trim()
 
-  return statusHasChanged ? `${message} 🏁` : message
+  return statusHasChanged ? `*${message}*` : message
 }
 
 function formatDelayString (msToBeUpdated: number): string {

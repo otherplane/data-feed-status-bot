@@ -210,7 +210,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            '🟢 ethereum-goerli (2/2) 🏁\n🟢 ethereum-rinkeby (2/2) 🏁',
+            '*🟢 ethereum-goerli (2/2)*\n*🟢 ethereum-rinkeby (2/2)*',
             { parse_mode: 'Markdown' }
           )
         })
@@ -239,7 +239,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            '🟡 ethereum-goerli (1/2) > 3d 🏁\n🟡 ethereum-rinkeby (1/2) > 3d 🏁',
+            '*🟡 ethereum-goerli (1/2) > 3d*\n*🟡 ethereum-rinkeby (1/2) > 3d*',
             { parse_mode: 'Markdown' }
           )
         })
@@ -263,7 +263,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            '🔴 ethereum-goerli (0/2) > 3d 🏁\n🔴 ethereum-rinkeby (0/2) > 3d 🏁',
+            '*🔴 ethereum-goerli (0/2) > 3d*\n*🔴 ethereum-rinkeby (0/2) > 3d*',
             { parse_mode: 'Markdown' }
           )
         })
@@ -290,7 +290,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          '🔴 ethereum-goerli (0/1) > 3d 🏁',
+          '*🔴 ethereum-goerli (0/1) > 3d*',
           { parse_mode: 'Markdown' }
         )
       })
@@ -314,7 +314,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramMainnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          '🔴 ethereum-mainnet (0/1) > 3d 🏁',
+          '*🔴 ethereum-mainnet (0/1) > 3d*',
           { parse_mode: 'Markdown' }
         )
       })
@@ -341,7 +341,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '🔴 ethereum-goerli (0/1) > 3d 🏁',
+        '*🔴 ethereum-goerli (0/1) > 3d*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -367,7 +367,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '🔴 ethereum-goerli (0/1) 1h 23m 🏁',
+        '*🔴 ethereum-goerli (0/1) 1h 23m*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -391,7 +391,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '🟢 ethereum-goerli (1/1) 🏁',
+        '*🟢 ethereum-goerli (1/1)*',
         { parse_mode: 'Markdown' }
       )
     })

@@ -168,8 +168,10 @@ function createNetworkMessage (
     feedStatusInfo => feedStatusInfo.statusChanged
   )
 
-  const message = `${color} ${network} (${feedsLength -
-    outdatedFeedsLength}/${feedsLength}) ${delay ?? ''}`.trim()
+  const message = `${color} ${network.replace('-', '.')} ${feedsLength -
+    outdatedFeedsLength}/${feedsLength} ${
+    delay ? '(' + delay + ')' : ''
+  }`.trim()
 
   return statusHasChanged ? `*${message}*` : message
 }
@@ -191,9 +193,9 @@ function formatDelayString (msToBeUpdated: number): string {
   if (days && days > daysToRequest) {
     timeOutdatedString = `> ${daysToRequest}d`
   } else if (days) {
-    timeOutdatedString = `${days}d ${hours}h ${minutes}m`
+    timeOutdatedString = `> ${days}d`
   } else if (hours) {
-    timeOutdatedString = `${hours}h ${minutes}m`
+    timeOutdatedString = `> ${hours}h`
   } else {
     timeOutdatedString = `${minutes}m`
   }

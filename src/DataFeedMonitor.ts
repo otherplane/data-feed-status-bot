@@ -21,6 +21,7 @@ type FeedStatusInfo = {
   isOutdated: boolean
   msToBeUpdated: number
   statusChanged: boolean
+  isMainnet: boolean
 }
 type NetworkName = string
 type FeedName = string
@@ -51,43 +52,19 @@ export class DataFeedMonitor {
     const {
       feeds: { feeds }
     } = await fetchFeedsApi(this.graphQLClient)
-    const mainnetMessages: Array<string> = []
-    const testnetMessages: Array<string> = []
 
     const monitorableFeeds = feeds.filter(feed => feed.heartbeat)
 
     const feedsByNetwork = groupBy(monitorableFeeds, 'network')
+    const isFirstCheck = !Object.keys(this.state).length
+
     this.state = Object.entries(feedsByNetwork).reduce(
       (state: State, [network, networkFeeds]) => {
-        const feedsStatusByNetwork: FeedsStatusByNetwork = networkFeeds.reduce(
-          (acc, feed: Feed) => {
-            const msToBeUpdated = getMsToBeUpdated(dateNow, feed)
-            const isOutdated = isFeedOutdated(msToBeUpdated)
-            const statusChanged =
-              acc[feed.feedFullName]?.isOutdated !== isOutdated
-
-            return {
-              ...acc,
-              [feed.feedFullName]: {
-                isOutdated,
-                msToBeUpdated,
-                statusChanged
-              }
-            }
-          },
-          this.state[network] || {}
+        const feedsStatusByNetwork: FeedsStatusByNetwork = groupFeedsStatusByNetwork(
+          networkFeeds,
+          this.state[network],
+          dateNow
         )
-
-        const isMainnetFeed = MAINNET_KEYWORDS.find(keyword =>
-          network.includes(keyword)
-        )
-
-        const messages = isMainnetFeed ? mainnetMessages : testnetMessages
-        const message = createNetworkMessage(feedsStatusByNetwork, network)
-
-        if (message) {
-          messages.push(message)
-        }
 
         return {
           ...state,
@@ -97,12 +74,39 @@ export class DataFeedMonitor {
       this.state
     )
 
-    if (mainnetMessages.length) {
-      this.sendTelegramMessage(Network.Mainnet, mainnetMessages.join('\n'))
+    const shouldSendMessages = Object.entries(this.state).reduce(
+      (acc, [network, networkFeeds]) => {
+        const shouldSendMessage = Object.values(networkFeeds).reduce(
+          (shouldSendMessage, feed) => shouldSendMessage || feed.statusChanged,
+          false
+        )
+
+        if (isMainnetFeed(network)) {
+          return { ...acc, mainnet: acc.mainnet || shouldSendMessage }
+        } else {
+          return { ...acc, testnet: acc.testnet || shouldSendMessage }
+        }
+      },
+      { mainnet: false, testnet: false }
+    )
+
+    const { mainnetState, testnetState } = splitStateByKind(this.state)
+
+    const createMessages = (state: State) =>
+      Object.entries(state).reduce(
+        (messages: Array<string>, [network, feeds]) => {
+          return [...messages, createNetworkMessage(feeds, network)]
+        },
+        []
+      )
+    if (isFirstCheck || shouldSendMessages.mainnet) {
+      const messages = createMessages(mainnetState)
+      this.sendTelegramMessage(Network.Mainnet, messages.join('\n'))
     }
 
-    if (testnetMessages.length) {
-      this.sendTelegramMessage(Network.Testnet, testnetMessages.join('\n'))
+    if (isFirstCheck || shouldSendMessages.testnet) {
+      const messages = createMessages(testnetState)
+      this.sendTelegramMessage(Network.Testnet, messages.join('\n'))
     }
 
     return
@@ -135,17 +139,8 @@ export class DataFeedMonitor {
 function createNetworkMessage (
   feedsStatusByNetwork: FeedsStatusByNetwork,
   network: string
-): string | null {
+): string {
   const feedInfos = Object.values(feedsStatusByNetwork)
-
-  const shouldSendMessage = feedInfos.reduce(
-    (shouldSendMessage, feed) => shouldSendMessage || feed.statusChanged,
-    false
-  )
-
-  if (!shouldSendMessage) {
-    return null
-  }
 
   const outdatedFeeds = feedInfos.filter(feedInfo => feedInfo.isOutdated)
   const outdatedFeedsLength = outdatedFeeds.length
@@ -203,4 +198,52 @@ function formatDelayString (msToBeUpdated: number): string {
     timeOutdatedString = `${minutes}m`
   }
   return timeOutdatedString
+}
+
+function groupFeedsStatusByNetwork (
+  feeds: Array<Feed>,
+  networkFeedsStatus: Record<FeedName, FeedStatusInfo>,
+  dateNow: number
+): FeedsStatusByNetwork {
+  return feeds.reduce((acc: FeedsStatusByNetwork, feed: Feed) => {
+    const msToBeUpdated = getMsToBeUpdated(dateNow, feed)
+    const isOutdated = isFeedOutdated(msToBeUpdated)
+    const statusChanged = acc[feed.feedFullName]?.isOutdated !== isOutdated
+    const isMainnet = isMainnetFeed(feed.network)
+
+    return {
+      ...acc,
+      [feed.feedFullName]: {
+        isOutdated,
+        msToBeUpdated,
+        statusChanged,
+        isMainnet
+      }
+    }
+  }, networkFeedsStatus || {})
+}
+
+function isMainnetFeed (network: string) {
+  return !!MAINNET_KEYWORDS.find(keyword => network.includes(keyword))
+}
+
+function splitStateByKind (state: State) {
+  return Object.entries(state).reduce(
+    (networks, [network, feeds]) => {
+      const isMainnet = Object.values(feeds)[0].isMainnet
+
+      return {
+        mainnetState: isMainnet
+          ? { ...networks.mainnetState, [network]: feeds }
+          : networks.mainnetState,
+        testnetState: !isMainnet
+          ? { ...networks.testnetState, [network]: feeds }
+          : networks.testnetState
+      }
+    },
+    { testnetState: {}, mainnetState: {} } as {
+      mainnetState: State
+      testnetState: State
+    }
+  )
 }

@@ -413,7 +413,8 @@ describe('DataFeedMonitor', () => {
             [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: {
               isOutdated: true,
               msToBeUpdated: -100000,
-              statusChanged: false
+              statusChanged: false,
+              isMainnet: false
             }
           }
         }
@@ -445,7 +446,8 @@ describe('DataFeedMonitor', () => {
             [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: {
               isOutdated: false,
               msToBeUpdated: 100000,
-              statusChanged: false
+              statusChanged: false,
+              isMainnet: false
             }
           }
         }

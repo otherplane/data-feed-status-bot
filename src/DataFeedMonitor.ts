@@ -3,29 +3,19 @@ import TelegramBot from 'node-telegram-bot-api'
 
 import { fetchFeedsApi } from './fetchFeedsApi'
 import { getMsToBeUpdated, isFeedOutdated } from './feedStatus'
-import { Feed } from './types'
+import {
+  Feed,
+  FeedName,
+  FeedsStatusByNetwork,
+  FeedStatusInfo,
+  Network,
+  State,
+  StatusEmoji
+} from './types'
 import { MAINNET_KEYWORDS } from './constants'
 import { groupBy } from './groupBy'
-
-enum Network {
-  Mainnet,
-  Testnet
-}
-enum StatusEmoji {
-  Green = '🟢',
-  Yellow = '🟡',
-  Red = '🔴'
-}
-type FeedsStatusByNetwork = Record<FeedName, FeedStatusInfo>
-type FeedStatusInfo = {
-  isOutdated: boolean
-  msToBeUpdated: number
-  statusChanged: boolean
-  isMainnet: boolean
-}
-type NetworkName = string
-type FeedName = string
-type State = Record<NetworkName, Record<FeedName, FeedStatusInfo>>
+import isFeedActive from './isFeedActive'
+import { createGlobalStatusMessage } from './createGlobalStatusMessage'
 
 export class DataFeedMonitor {
   private graphQLClient: GraphQLClient
@@ -99,13 +89,28 @@ export class DataFeedMonitor {
         },
         []
       )
+
     if (isFirstCheck || shouldSendMessages.mainnet) {
       const messages = createMessages(mainnetState)
+      const globalStatusMessage = createGlobalStatusMessage(
+        this.state,
+        Network.Mainnet
+      )
+
+      messages.unshift(globalStatusMessage + '\n')
+
       this.sendTelegramMessage(Network.Mainnet, messages.join('\n'))
     }
 
     if (isFirstCheck || shouldSendMessages.testnet) {
       const messages = createMessages(testnetState)
+      const globalStatusMessage = createGlobalStatusMessage(
+        this.state,
+        Network.Testnet
+      )
+
+      messages.unshift(globalStatusMessage + '\n')
+
       this.sendTelegramMessage(Network.Testnet, messages.join('\n'))
     }
 
@@ -150,7 +155,7 @@ function createNetworkMessage (
     ...outdatedFeeds.map(feedInfo => feedInfo.msToBeUpdated)
   )
 
-  // only use the delay if there are oudated feeds
+  // only use the delay if there are outdated feeds
   const delay = outdatedFeeds.length
     ? formatDelayString(largestDelayMs)
     : undefined
@@ -168,8 +173,10 @@ function createNetworkMessage (
     feedStatusInfo => feedStatusInfo.statusChanged
   )
 
-  const message = `${color} ${network} (${feedsLength -
-    outdatedFeedsLength}/${feedsLength}) ${delay ?? ''}`.trim()
+  const message = `${color} ${network.replace('-', '.')} ${feedsLength -
+    outdatedFeedsLength}/${feedsLength} ${
+    delay ? '(' + delay + ')' : ''
+  }`.trim()
 
   return statusHasChanged ? `*${message}*` : message
 }
@@ -191,9 +198,9 @@ function formatDelayString (msToBeUpdated: number): string {
   if (days && days > daysToRequest) {
     timeOutdatedString = `> ${daysToRequest}d`
   } else if (days) {
-    timeOutdatedString = `${days}d ${hours}h ${minutes}m`
+    timeOutdatedString = `> ${days}d`
   } else if (hours) {
-    timeOutdatedString = `${hours}h ${minutes}m`
+    timeOutdatedString = `> ${hours}h`
   } else {
     timeOutdatedString = `${minutes}m`
   }
@@ -210,6 +217,7 @@ function groupFeedsStatusByNetwork (
     const isOutdated = isFeedOutdated(msToBeUpdated)
     const statusChanged = acc[feed.feedFullName]?.isOutdated !== isOutdated
     const isMainnet = isMainnetFeed(feed.network)
+    const isActive = isFeedActive(parseInt(feed.lastResultTimestamp), dateNow)
 
     return {
       ...acc,
@@ -217,7 +225,8 @@ function groupFeedsStatusByNetwork (
         isOutdated,
         msToBeUpdated,
         statusChanged,
-        isMainnet
+        isMainnet,
+        isActive
       }
     }
   }, networkFeedsStatus || {})

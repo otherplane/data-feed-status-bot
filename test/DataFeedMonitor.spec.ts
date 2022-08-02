@@ -210,7 +210,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            '*🟢 ethereum-goerli (2/2)*\n*🟢 ethereum-rinkeby (2/2)*',
+            '💚 4 / 4\n\n*🟢 ethereum.goerli 2/2*\n*🟢 ethereum.rinkeby 2/2*',
             { parse_mode: 'Markdown' }
           )
         })
@@ -239,7 +239,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            '*🟡 ethereum-goerli (1/2) > 3d*\n*🟡 ethereum-rinkeby (1/2) > 3d*',
+            '💛 2 / 4\n\n*🟡 ethereum.goerli 1/2 (> 3d)*\n*🟡 ethereum.rinkeby 1/2 (> 3d)*',
             { parse_mode: 'Markdown' }
           )
         })
@@ -263,7 +263,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            '*🔴 ethereum-goerli (0/2) > 3d*\n*🔴 ethereum-rinkeby (0/2) > 3d*',
+            '❤️ 0 / 4\n\n*🔴 ethereum.goerli 0/2 (> 3d)*\n*🔴 ethereum.rinkeby 0/2 (> 3d)*',
             { parse_mode: 'Markdown' }
           )
         })
@@ -290,7 +290,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          '*🔴 ethereum-goerli (0/1) > 3d*',
+          '❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 3d)*',
           { parse_mode: 'Markdown' }
         )
       })
@@ -314,7 +314,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramMainnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          '*🔴 ethereum-mainnet (0/1) > 3d*',
+          '❤️ 0 / 1\n\n*🔴 ethereum.mainnet 0/1 (> 3d)*',
           { parse_mode: 'Markdown' }
         )
       })
@@ -341,7 +341,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '*🔴 ethereum-goerli (0/1) > 3d*',
+        '❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 3d)*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -367,7 +367,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '*🔴 ethereum-goerli (0/1) 1h 23m*',
+        '❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 1h)*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -391,7 +391,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '*🟢 ethereum-goerli (1/1)*',
+        '💚 1 / 1\n\n*🟢 ethereum.goerli 1/1*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -414,7 +414,8 @@ describe('DataFeedMonitor', () => {
               isOutdated: true,
               msToBeUpdated: -100000,
               statusChanged: false,
-              isMainnet: false
+              isMainnet: false,
+              isActive: true
             }
           }
         }
@@ -447,7 +448,8 @@ describe('DataFeedMonitor', () => {
               isOutdated: false,
               msToBeUpdated: 100000,
               statusChanged: false,
-              isMainnet: false
+              isMainnet: false,
+              isActive: true
             }
           }
         }

@@ -15,3 +15,32 @@ export type ApiSuccessResponse = {
   }
   total: number
 }
+
+export enum Network {
+  Mainnet,
+  Testnet
+}
+export enum StatusEmoji {
+  Green = '🟢',
+  Yellow = '🟡',
+  Red = '🔴',
+  Black = '⚫'
+}
+
+export enum GlobalStatusEmoji {
+  Green = '💚',
+  Yellow = '💛',
+  Red = '❤️'
+}
+
+export type FeedsStatusByNetwork = Record<FeedName, FeedStatusInfo>
+export type FeedStatusInfo = {
+  isOutdated: boolean
+  msToBeUpdated: number
+  statusChanged: boolean
+  isMainnet: boolean
+  isActive: boolean
+}
+export type NetworkName = string
+export type FeedName = string
+export type State = Record<NetworkName, Record<FeedName, FeedStatusInfo>>

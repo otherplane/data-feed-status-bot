@@ -181,8 +181,13 @@ function createNetworkMessage (
   return statusHasChanged ? `*${message}*` : message
 }
 
-function formatDelayString (msToBeUpdated: number): string {
-  let secondsToBeUpdated = Math.floor((-1 * msToBeUpdated) / 1000)
+function formatDelayString(
+  msToBeUpdated: number,
+  admissibleDelay = ADMISSIBLE_DELAY_MS
+): string {
+  let secondsToBeUpdated = Math.floor(
+    (-1 * (msToBeUpdated + admissibleDelay)) / 1000
+  );
 
   const days = Math.floor(secondsToBeUpdated / (60 * 60 * 24))
   secondsToBeUpdated -= days * 60 * 60 * 24
@@ -194,7 +199,7 @@ function formatDelayString (msToBeUpdated: number): string {
   secondsToBeUpdated -= minutes * 60
 
   let timeOutdatedString
-  const daysToRequest = Number(process.env.DAYS_TO_REQUEST || '2')
+  const daysToRequest = Number(DAYS_TO_CONSIDER_FEED_INACTIVE)
   if (days && days > daysToRequest) {
     timeOutdatedString = `> ${daysToRequest}d`
   } else if (days) {

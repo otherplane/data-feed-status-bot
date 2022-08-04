@@ -1,4 +1,4 @@
-import { isFeedActive } from '../src/isFeedActive'
+import { isFeedActive } from '../src/feedStatus'
 import { TIME_TO_CONSIDER_FEED_INACTIVE_MS } from '../src/constants'
 
 describe('isFeedActive', () => {

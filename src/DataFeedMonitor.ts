@@ -231,8 +231,11 @@ function groupFeedsStatusByNetwork (
     const isOutdated = isFeedOutdated(msToBeUpdated)
     const statusChanged = acc[feed.feedFullName]?.isOutdated !== isOutdated
     const isMainnet = isMainnetFeed(feed.network)
-    const isActive = isFeedActive(parseInt(feed.lastResultTimestamp), dateNow)
-
+    // TODO: normalize all timestamp after query data
+    const isActive = isFeedActive(
+      parseInt(feed.lastResultTimestamp || '0') * 1000,
+      dateNow
+    )
     return {
       ...acc,
       [feed.feedFullName]: {

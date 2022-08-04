@@ -10,7 +10,7 @@ export function isFeedActive (
   lastResultTimestamp: number,
   dateNow = Date.now()
 ): boolean {
-  return lastResultTimestamp + TIME_TO_CONSIDER_FEED_INACTIVE_MS < dateNow
+  return dateNow - lastResultTimestamp < TIME_TO_CONSIDER_FEED_INACTIVE_MS
 }
 
 export function getMsToBeUpdated (

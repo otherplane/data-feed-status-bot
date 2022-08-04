@@ -12,9 +12,13 @@ import {
   State,
   StatusEmoji
 } from './types'
-import { MAINNET_KEYWORDS } from './constants'
+import {
+  MAINNET_KEYWORDS,
+  ADMISSIBLE_DELAY_MS,
+  DAYS_TO_CONSIDER_FEED_INACTIVE
+} from './constants'
 import { groupBy } from './groupBy'
-import isFeedActive from './isFeedActive'
+import { isFeedActive } from './feedStatus'
 import { createGlobalStatusMessage } from './createGlobalStatusMessage'
 
 export class DataFeedMonitor {
@@ -147,21 +151,25 @@ function createNetworkMessage (
 ): string {
   const feedInfos = Object.values(feedsStatusByNetwork)
 
-  const outdatedFeeds = feedInfos.filter(feedInfo => feedInfo.isOutdated)
+  const outdatedFeeds = feedInfos.filter(
+    feedInfo => feedInfo.isOutdated && feedInfo.isActive
+  )
+  const inactiveFeeds = feedInfos.filter(feedInfo => !feedInfo.isActive)
   const outdatedFeedsLength = outdatedFeeds.length
   const feedsLength = feedInfos.length
-
+  const isInactiveNetwork = inactiveFeeds.length === feedInfos.length
   const largestDelayMs = Math.min(
     ...outdatedFeeds.map(feedInfo => feedInfo.msToBeUpdated)
   )
-
   // only use the delay if there are outdated feeds
   const delay = outdatedFeeds.length
     ? formatDelayString(largestDelayMs)
     : undefined
 
   let color: StatusEmoji
-  if (!outdatedFeedsLength) {
+  if (isInactiveNetwork) {
+    color = StatusEmoji.Black
+  } else if (!outdatedFeedsLength) {
     color = StatusEmoji.Green
   } else if (outdatedFeedsLength !== feedsLength) {
     color = StatusEmoji.Yellow
@@ -174,20 +182,21 @@ function createNetworkMessage (
   )
 
   const message = `${color} ${network.replace('-', '.')} ${feedsLength -
-    outdatedFeedsLength}/${feedsLength} ${
+    outdatedFeedsLength -
+    inactiveFeeds.length}/${feedsLength} ${
     delay ? '(' + delay + ')' : ''
   }`.trim()
 
   return statusHasChanged ? `*${message}*` : message
 }
 
-function formatDelayString(
+function formatDelayString (
   msToBeUpdated: number,
   admissibleDelay = ADMISSIBLE_DELAY_MS
 ): string {
   let secondsToBeUpdated = Math.floor(
     (-1 * (msToBeUpdated + admissibleDelay)) / 1000
-  );
+  )
 
   const days = Math.floor(secondsToBeUpdated / (60 * 60 * 24))
   secondsToBeUpdated -= days * 60 * 60 * 24

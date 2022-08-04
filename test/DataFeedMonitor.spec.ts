@@ -168,6 +168,7 @@ describe('DataFeedMonitor', () => {
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
         .mockReturnValue(Promise.resolve(FEED_MULTIPLE_RESPONSE))
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
+      jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
         {
@@ -181,22 +182,76 @@ describe('DataFeedMonitor', () => {
 
       expect(FeedStatus.isFeedOutdated).toHaveBeenNthCalledWith(
         1,
-        -1638460383178
+        -1638460083178
       )
       expect(FeedStatus.isFeedOutdated).toHaveBeenNthCalledWith(
         2,
-        1636822920616822
+        1636822920916822
       )
     })
 
     describe('should send the correct number of down feeds in the message', () => {
       describe('first time calling them', () => {
+        it('should send a black message if all feeds are inactive', async () => {
+          jest
+            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
+            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+
+          jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
+          jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(false)
+          const dataFeedMonitor = new DataFeedMonitor(
+            (graphqlClientMock as unknown) as GraphQLClient,
+            {
+              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+            }
+          )
+          const dateNow = 1638461384178
+
+          await dataFeedMonitor.checkFeedsStatus(dateNow)
+
+          expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
+            expect.any(String),
+            '💚 0 / 0\n\n*⚫ ethereum.goerli 0/2*\n*⚫ ethereum.rinkeby 0/2*',
+            { parse_mode: 'Markdown' }
+          )
+        })
+        it('should send a green message if only some feeds are inactive', async () => {
+          jest
+            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
+            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+
+          jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
+          jest
+            .spyOn(FeedStatus, 'isFeedActive')
+            .mockReturnValueOnce(false)
+            .mockReturnValueOnce(true)
+            .mockReturnValueOnce(false)
+            .mockReturnValueOnce(true)
+          const dataFeedMonitor = new DataFeedMonitor(
+            (graphqlClientMock as unknown) as GraphQLClient,
+            {
+              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
+              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+            }
+          )
+          const dateNow = 1638461384178
+
+          await dataFeedMonitor.checkFeedsStatus(dateNow)
+
+          expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
+            expect.any(String),
+            '💚 2 / 2\n\n*🟢 ethereum.goerli 1/2*\n*🟢 ethereum.rinkeby 1/2*',
+            { parse_mode: 'Markdown' }
+          )
+        })
         it('should send a green message if all feeds are updated', async () => {
           jest
             .spyOn(FetchFeedsApi, 'fetchFeedsApi')
             .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
 
           jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
+          jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
           const dataFeedMonitor = new DataFeedMonitor(
             (graphqlClientMock as unknown) as GraphQLClient,
             {
@@ -226,6 +281,7 @@ describe('DataFeedMonitor', () => {
             .mockReturnValueOnce(true)
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
+          jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
           const dataFeedMonitor = new DataFeedMonitor(
             (graphqlClientMock as unknown) as GraphQLClient,
             {
@@ -239,7 +295,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            '💛 2 / 4\n\n*🟡 ethereum.goerli 1/2 (> 3d)*\n*🟡 ethereum.rinkeby 1/2 (> 3d)*',
+            '💛 2 / 4\n\n*🟡 ethereum.goerli 1/2 (> 7d)*\n*🟡 ethereum.rinkeby 1/2 (> 7d)*',
             { parse_mode: 'Markdown' }
           )
         })
@@ -250,6 +306,7 @@ describe('DataFeedMonitor', () => {
             .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
 
           jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
+          jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
           const dataFeedMonitor = new DataFeedMonitor(
             (graphqlClientMock as unknown) as GraphQLClient,
             {
@@ -263,7 +320,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            '❤️ 0 / 4\n\n*🔴 ethereum.goerli 0/2 (> 3d)*\n*🔴 ethereum.rinkeby 0/2 (> 3d)*',
+            '❤️ 0 / 4\n\n*🔴 ethereum.goerli 0/2 (> 7d)*\n*🔴 ethereum.rinkeby 0/2 (> 7d)*',
             { parse_mode: 'Markdown' }
           )
         })
@@ -277,6 +334,7 @@ describe('DataFeedMonitor', () => {
           .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
 
         jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
+        jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
         const dataFeedMonitor = new DataFeedMonitor(
           (graphqlClientMock as unknown) as GraphQLClient,
           {
@@ -290,7 +348,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          '❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 3d)*',
+          '❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 7d)*',
           { parse_mode: 'Markdown' }
         )
       })
@@ -301,6 +359,7 @@ describe('DataFeedMonitor', () => {
           .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE_MAINNET))
 
         jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
+        jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
         const dataFeedMonitor = new DataFeedMonitor(
           (graphqlClientMock as unknown) as GraphQLClient,
           {
@@ -314,7 +373,7 @@ describe('DataFeedMonitor', () => {
 
         expect(telegramMainnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
-          '❤️ 0 / 1\n\n*🔴 ethereum.mainnet 0/1 (> 3d)*',
+          '❤️ 0 / 1\n\n*🔴 ethereum.mainnet 0/1 (> 7d)*',
           { parse_mode: 'Markdown' }
         )
       })
@@ -328,6 +387,7 @@ describe('DataFeedMonitor', () => {
         .spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
         .mockReturnValueOnce(true)
+      jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
         {
@@ -341,7 +401,7 @@ describe('DataFeedMonitor', () => {
 
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
-        '❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 3d)*',
+        '❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 7d)*',
         { parse_mode: 'Markdown' }
       )
     })
@@ -354,6 +414,7 @@ describe('DataFeedMonitor', () => {
         .spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
         .mockReturnValueOnce(true)
+      jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
         {
@@ -377,6 +438,7 @@ describe('DataFeedMonitor', () => {
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
         .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
+      jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
         {
@@ -401,6 +463,7 @@ describe('DataFeedMonitor', () => {
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
         .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
+      jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
         {
@@ -435,6 +498,7 @@ describe('DataFeedMonitor', () => {
         .spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
         .mockReturnValue(false)
+      jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
         {

@@ -8,6 +8,7 @@ import {
   FeedName,
   FeedsStatusByNetwork,
   FeedStatusInfo,
+  GlobalStatusEmoji,
   Network,
   State,
   StatusEmoji
@@ -22,16 +23,16 @@ import { isFeedActive } from './feedStatus'
 import { createGlobalStatusMessage } from './createGlobalStatusMessage'
 
 export const FOOTER = `Global status:
-💚 => All active feeds are up to date 
-💛 => Some active feeds are outdated
-❤️ => All active feeds in a network are delayed 
+${GlobalStatusEmoji.Green} => All active feeds are up to date 
+${GlobalStatusEmoji.Yellow} => Some active feeds are outdated
+${GlobalStatusEmoji.Red} => All active feeds in a network are delayed 
 x / y => active updated feeds / total active feed
 
 Network status:
-🟢 => All feeds are up to date
-🟡 => Some feeds are delayed
-🔴 => All feeds are delayed
-⚫ => All feeds are inactive
+${StatusEmoji.Green} => All feeds are up to date
+${StatusEmoji.Yellow} => Some feeds are delayed
+${StatusEmoji.Red} => All feeds are delayed
+${StatusEmoji.Black} => All feeds are inactive
 x/y => updated feeds / total feeds
 
 A feed is considered active when was updated in the last 7 days`

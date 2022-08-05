@@ -174,9 +174,11 @@ function createNetworkMessage (
   const outdatedFeedsLength = outdatedFeeds.length
   const feedsLength = feedInfos.length
   const isInactiveNetwork = inactiveFeeds.length === feedInfos.length
-  const largestDelayMs = Math.min(
-    ...outdatedFeeds.map(feedInfo => feedInfo.msToBeUpdated)
-  )
+  // the time a feed is oudated is calculated from the msToBeUpdated. So when msToBeUpdated < 0,
+  // the feed is outdated and we have to convert it to a positive number because the delay is
+  // expected to be > 0
+  const largestDelayMs =
+    -1 * Math.min(...outdatedFeeds.map(feedInfo => feedInfo.msToBeUpdated))
   // only use the delay if there are outdated feeds
   const delay = outdatedFeeds.length
     ? formatDelayString(largestDelayMs)
@@ -206,20 +208,16 @@ function createNetworkMessage (
   return statusHasChanged ? `*${message}*` : message
 }
 
-function formatDelayString (
-  msToBeUpdated: number,
+export function formatDelayString (
+  delay: number,
   admissibleDelay = ADMISSIBLE_DELAY_MS
 ): string {
-  let secondsToBeUpdated = Math.floor(
-    (-1 * (msToBeUpdated + admissibleDelay)) / 1000
-  )
-
+  // Admissible delay is added because it's used to calculate the ms to be updated
+  let secondsToBeUpdated = Math.floor((delay + admissibleDelay) / 1000)
   const days = Math.floor(secondsToBeUpdated / (60 * 60 * 24))
   secondsToBeUpdated -= days * 60 * 60 * 24
-
   const hours = Math.floor(secondsToBeUpdated / 3600) % 24
   secondsToBeUpdated -= hours * 60 * 60
-
   const minutes = Math.floor(secondsToBeUpdated / 60) % 60
   secondsToBeUpdated -= minutes * 60
 

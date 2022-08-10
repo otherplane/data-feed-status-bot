@@ -22,7 +22,7 @@ import { groupBy } from './groupBy'
 import { isFeedActive } from './feedStatus'
 import { createGlobalStatusMessage } from './createGlobalStatusMessage'
 
-export const FOOTER = `Global status:
+export const LEGEND_MESSAGE = `Global status:
 ${GlobalStatusEmoji.Green} => All active feeds are up to date 
 ${GlobalStatusEmoji.Yellow} => Some active feeds are outdated
 ${GlobalStatusEmoji.Red} => All active feeds in a network are delayed 
@@ -56,6 +56,11 @@ export class DataFeedMonitor {
     this.mainnetBot = mainnetBot
     this.testnetBot = testnetBot
     this.state = state
+  }
+
+  public async sendLegendMessage () {
+    this.sendTelegramMessage(Network.Testnet, LEGEND_MESSAGE)
+    this.sendTelegramMessage(Network.Mainnet, LEGEND_MESSAGE)
   }
 
   public async checkFeedsStatus (dateNow: number = Date.now()) {
@@ -119,7 +124,7 @@ export class DataFeedMonitor {
 
       messages.unshift(globalStatusMessage + '\n')
 
-      this.sendTelegramMessage(Network.Mainnet, addFooter(messages.join('\n')))
+      this.sendTelegramMessage(Network.Mainnet, messages.join('\n'))
     }
 
     if (isFirstCheck || shouldSendMessages.testnet) {
@@ -131,7 +136,7 @@ export class DataFeedMonitor {
 
       messages.unshift(globalStatusMessage + '\n')
 
-      this.sendTelegramMessage(Network.Testnet, addFooter(messages.join('\n')))
+      this.sendTelegramMessage(Network.Testnet, messages.join('\n'))
     }
 
     return
@@ -286,8 +291,4 @@ function splitStateByKind (state: State) {
       testnetState: State
     }
   )
-}
-
-function addFooter (message: string, footer = FOOTER): string {
-  return `${message}\n\n${footer}`
 }

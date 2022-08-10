@@ -52,7 +52,7 @@ async function main () {
     mainnetBot,
     testnetBot
   })
-
+  dataFeedMonitor.sendLegendMessage()
   setInterval(async () => {
     try {
       dataFeedMonitor.checkFeedsStatus()

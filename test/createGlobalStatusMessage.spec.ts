@@ -250,6 +250,6 @@ describe('createGlobalStatusMessage', () => {
 
     const message = createGlobalStatusMessage(state, Network.Testnet)
 
-    expect(message).toBe('❤️ 1 / 2')
+    expect(message).toBe('💛 1 / 2')
   })
 })

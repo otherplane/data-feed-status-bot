@@ -6,6 +6,11 @@ export function createGlobalStatusMessage (state: State, network: Network) {
 
   const isNetworkDown: boolean = Object.values(state).reduce(
     (isDown, network) => {
+      // Check if it is the correct network environment: testnet or mainnet
+      if (!isCorrectChainKind(Object.values(network)[0])) {
+        return isDown
+      }
+
       const singleNetworkIsDown = !!Object.values(network).every(
         info => info.isOutdated && info.isActive
       )

@@ -17,7 +17,7 @@
         dest: /home/ubuntu/data-feed-status-bot/docker-compose.yml
 
     - name: Stack History limit
-      shell: docker swarm update --task-history-limit 0
+      shell: docker swarm update --task-history-limit 3
 
     - name: Deploy Docker Stack
       shell: |

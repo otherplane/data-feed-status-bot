@@ -4,6 +4,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import { fetchFeedsApi } from './fetchFeedsApi'
 import { getMsToBeUpdated, isFeedOutdated } from './feedStatus'
 import {
+  ApiSuccessResponse,
   Feed,
   FeedName,
   FeedsStatusByNetwork,
@@ -64,79 +65,84 @@ export class DataFeedMonitor {
   }
 
   public async checkFeedsStatus (dateNow: number = Date.now()) {
-    const {
-      feeds: { feeds }
-    } = await fetchFeedsApi(this.graphQLClient)
-
-    const monitorableFeeds = feeds.filter(feed => feed.heartbeat)
-
-    const feedsByNetwork = groupBy(monitorableFeeds, 'network')
-    const isFirstCheck = !Object.keys(this.state).length
-
-    this.state = Object.entries(feedsByNetwork).reduce(
-      (state: State, [network, networkFeeds]) => {
-        const feedsStatusByNetwork: FeedsStatusByNetwork = groupFeedsStatusByNetwork(
-          networkFeeds,
-          this.state[network],
-          dateNow
-        )
-
-        return {
-          ...state,
-          [network]: feedsStatusByNetwork
-        }
-      },
-      this.state
-    )
-
-    const shouldSendMessages = Object.entries(this.state).reduce(
-      (acc, [network, networkFeeds]) => {
-        const shouldSendMessage = Object.values(networkFeeds).reduce(
-          (shouldSendMessage, feed) => shouldSendMessage || feed.statusChanged,
-          false
-        )
-
-        if (isMainnetFeed(network)) {
-          return { ...acc, mainnet: acc.mainnet || shouldSendMessage }
-        } else {
-          return { ...acc, testnet: acc.testnet || shouldSendMessage }
-        }
-      },
-      { mainnet: false, testnet: false }
-    )
-
-    const { mainnetState, testnetState } = splitStateByKind(this.state)
-
-    const createMessages = (state: State) =>
-      Object.entries(state).reduce(
-        (messages: Array<string>, [network, feeds]) => {
-          return [...messages, createNetworkMessage(feeds, network)]
-        },
-        []
-      )
-
-    if (isFirstCheck || shouldSendMessages.mainnet) {
-      const messages = createMessages(mainnetState)
-      const globalStatusMessage = createGlobalStatusMessage(
-        this.state,
-        Network.Mainnet
-      )
-
-      messages.unshift(globalStatusMessage + '\n')
-
-      this.sendTelegramMessage(Network.Mainnet, messages.join('\n'))
+    let feeds: Array<Feed> | undefined
+    try {
+      feeds = await fetchFeedsApi(this.graphQLClient)
+    } catch (e) {
+      console.error(e)
     }
 
-    if (isFirstCheck || shouldSendMessages.testnet) {
-      const messages = createMessages(testnetState)
-      const globalStatusMessage = createGlobalStatusMessage(
-        this.state,
-        Network.Testnet
+    if (feeds) {
+      const monitorableFeeds = feeds.filter(feed => feed.heartbeat)
+      const feedsByNetwork = groupBy(monitorableFeeds, 'network')
+      const isFirstCheck = !Object.keys(this.state).length
+
+      this.state = Object.entries(feedsByNetwork).reduce(
+        (state: State, [network, networkFeeds]) => {
+          const feedsStatusByNetwork: FeedsStatusByNetwork = groupFeedsStatusByNetwork(
+            networkFeeds,
+            this.state[network],
+            dateNow
+          )
+
+          return {
+            ...state,
+            [network]: feedsStatusByNetwork
+          }
+        },
+        this.state
       )
 
-      messages.unshift(globalStatusMessage + '\n')
+      const shouldSendMessages = Object.entries(this.state).reduce(
+        (acc, [network, networkFeeds]) => {
+          const shouldSendMessage = Object.values(networkFeeds).reduce(
+            (shouldSendMessage, feed) =>
+              shouldSendMessage || feed.statusChanged,
+            false
+          )
 
-      this.sendTelegramMessage(Network.Testnet, messages.join('\n'))
+          if (isMainnetFeed(network)) {
+            return { ...acc, mainnet: acc.mainnet || shouldSendMessage }
+          } else {
+            return { ...acc, testnet: acc.testnet || shouldSendMessage }
+          }
+        },
+        { mainnet: false, testnet: false }
+      )
+
+      const { mainnetState, testnetState } = splitStateByKind(this.state)
+
+      const createMessages = (state: State) =>
+        Object.entries(state).reduce(
+          (messages: Array<string>, [network, feeds]) => {
+            return [...messages, createNetworkMessage(feeds, network)]
+          },
+          []
+        )
+
+      if (isFirstCheck || shouldSendMessages.mainnet) {
+        const messages = createMessages(mainnetState)
+        const globalStatusMessage = createGlobalStatusMessage(
+          this.state,
+          Network.Mainnet
+        )
+
+        messages.unshift(globalStatusMessage + '\n')
+
+        this.sendTelegramMessage(Network.Mainnet, messages.join('\n'))
+      }
+
+      if (isFirstCheck || shouldSendMessages.testnet) {
+        const messages = createMessages(testnetState)
+        const globalStatusMessage = createGlobalStatusMessage(
+          this.state,
+          Network.Testnet
+        )
+
+        messages.unshift(globalStatusMessage + '\n')
+
+        this.sendTelegramMessage(Network.Testnet, messages.join('\n'))
+      }
     }
 
     return

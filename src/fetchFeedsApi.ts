@@ -1,11 +1,13 @@
 import { GraphQLClient, gql } from 'graphql-request'
 
-import { ApiSuccessResponse } from './types'
+import { MAX_RETRIES, RETRY_AFTER_MS } from './constants'
+import { ApiSuccessResponse, Feed } from './types'
 
 // TODO: call with pagination
 export function fetchFeedsApi (
-  client: GraphQLClient
-): Promise<ApiSuccessResponse> {
+  client: GraphQLClient,
+  retryAfterMs = RETRY_AFTER_MS
+): Promise<Array<Feed>> {
   const query = gql`
     query feeds($network: String!) {
       feeds(network: $network) {
@@ -27,5 +29,37 @@ export function fetchFeedsApi (
     network: 'all'
   }
 
-  return client.request(query, variables)
+  return new Promise(async (resolve, reject) => {
+    let success: ApiSuccessResponse | undefined
+    let lastError: Error | undefined
+    let tries = 0
+
+    while (!success && tries < MAX_RETRIES) {
+      try {
+        if (tries !== 0) {
+          await sleep(retryAfterMs)
+        }
+        const result = await client.request(query, variables)
+        if (result?.feeds?.feeds) {
+          success = result
+        } else {
+          throw new Error('Invalid api response')
+        }
+      } catch (e) {
+        lastError = e as Error
+      }
+
+      tries += 1
+    }
+
+    if (success) {
+      resolve(success.feeds.feeds)
+    } else {
+      reject(lastError)
+    }
+  })
+}
+
+async function sleep (ms: number) {
+  return new Promise(resolve => setTimeout(() => resolve(true), ms))
 }

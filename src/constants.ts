@@ -9,3 +9,6 @@ export const DAYS_TO_CONSIDER_FEED_INACTIVE = Number(
 
 export const TIME_TO_CONSIDER_FEED_INACTIVE_MS =
   Number(DAYS_TO_CONSIDER_FEED_INACTIVE || '7') * 24 * 3600 * 1000
+
+export const RETRY_AFTER_MS = Number(process.env.RETRY_AFTER_MS || 3000)
+export const MAX_RETRIES = Number(process.env.MAX_RETRIES || 3)

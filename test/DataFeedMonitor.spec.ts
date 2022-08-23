@@ -3,7 +3,7 @@ import { GraphQLClient } from 'graphql-request'
 import TelegramBot from 'node-telegram-bot-api'
 import { DataFeedMonitor, LEGEND_MESSAGE } from '../src/DataFeedMonitor'
 import * as FeedStatus from '../src/feedStatus'
-import { ApiSuccessResponse, Feed } from '../src/types'
+import { Feed } from '../src/types'
 
 const FEEDS: Array<Feed> = [
   {
@@ -28,65 +28,19 @@ const FEEDS: Array<Feed> = [
   }
 ]
 
-const FEED_SINGLE_RESPONSE: ApiSuccessResponse = {
-  feeds: {
-    feeds: [
-      {
-        heartbeat: '1000',
-        finality: '1',
-        feedFullName: 'feedFullname2',
-        lastResultTimestamp: '1000',
-        address: '0x123456789abcdef123456789abcdef123456789a',
-        lastResult: '2',
-        name: 'name2',
-        network: 'ethereum-goerli'
-      }
-    ]
-  },
-  total: 1
-}
-const FEED_SINGLE_RESPONSE_MAINNET: ApiSuccessResponse = {
-  feeds: {
-    feeds: [
-      {
-        heartbeat: '1000',
-        finality: '1',
-        feedFullName: 'feedFullname2mainnet',
-        lastResultTimestamp: '1000',
-        address: '0x123456789abcdef123456789abcdef123456789a',
-        lastResult: '2',
-        name: 'name2mainnet',
-        network: 'ethereum-mainnet'
-      }
-    ]
-  },
-  total: 1
-}
+const SINGLE_FEED_GOERLI: Array<Feed> = [
+  {
+    heartbeat: '1000',
+    finality: '1',
+    feedFullName: 'feedFullname2',
+    lastResultTimestamp: '1000',
+    address: '0x123456789abcdef123456789abcdef123456789a',
+    lastResult: '2',
+    name: 'name2',
+    network: 'ethereum-goerli'
+  }
+]
 
-const FEED_SINGLE_RESPONSE_2: ApiSuccessResponse = {
-  feeds: {
-    feeds: [
-      {
-        heartbeat: '1000',
-        finality: '1',
-        feedFullName: 'feedFullname2',
-        lastResultTimestamp: (1638461384 - 5000).toString(),
-        address: '0x123456789abcdef123456789abcdef123456789a',
-        lastResult: '2',
-        name: 'name2',
-        network: 'ethereum-goerli'
-      }
-    ]
-  },
-  total: 1
-}
-
-const FEED_MULTIPLE_RESPONSE: ApiSuccessResponse = {
-  feeds: {
-    feeds: FEEDS
-  },
-  total: 2
-}
 const FEEDS_ETHEREUM_RINKEBY: Array<Feed> = [
   {
     heartbeat: '1000',
@@ -133,12 +87,10 @@ const FEEDS_ETHEREUM_GOERLI: Array<Feed> = [
   }
 ]
 
-const FEED_MULTIPLE_NETWORKS_RESPONSE: ApiSuccessResponse = {
-  feeds: {
-    feeds: [...FEEDS_ETHEREUM_GOERLI, ...FEEDS_ETHEREUM_RINKEBY]
-  },
-  total: 4
-}
+const FEEDS_MULTIPLE_NETWORKS: Array<Feed> = [
+  ...FEEDS_ETHEREUM_GOERLI,
+  ...FEEDS_ETHEREUM_RINKEBY
+]
 
 describe('DataFeedMonitor', () => {
   describe('.checkFeedStatus', () => {
@@ -149,7 +101,7 @@ describe('DataFeedMonitor', () => {
     it('should call fetchFeedsApi with graphql client', async () => {
       jest
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEED_MULTIPLE_RESPONSE))
+        .mockReturnValue(Promise.resolve(FEEDS))
       const dataFeedMonitor = new DataFeedMonitor(
         (graphqlClientMock as unknown) as GraphQLClient,
         {
@@ -166,7 +118,7 @@ describe('DataFeedMonitor', () => {
     it('should check if received feeds are outdated', async () => {
       jest
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEED_MULTIPLE_RESPONSE))
+        .mockReturnValue(Promise.resolve(FEEDS))
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
       jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
@@ -195,7 +147,7 @@ describe('DataFeedMonitor', () => {
         it('should send a black message if all feeds are inactive', async () => {
           jest
             .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
 
           jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
           jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(false)
@@ -219,7 +171,7 @@ describe('DataFeedMonitor', () => {
         it('should send a green message if only some feeds are inactive', async () => {
           jest
             .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
 
           jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
           jest
@@ -248,7 +200,7 @@ describe('DataFeedMonitor', () => {
         it('should send a green message if all feeds are updated', async () => {
           jest
             .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
 
           jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
           jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
@@ -273,7 +225,7 @@ describe('DataFeedMonitor', () => {
         it('should send a yellow message if some feeds are oudated', async () => {
           jest
             .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
 
           jest
             .spyOn(FeedStatus, 'isFeedOutdated')
@@ -303,7 +255,7 @@ describe('DataFeedMonitor', () => {
         it('should send a red message if all of them are outdated', async () => {
           jest
             .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEED_MULTIPLE_NETWORKS_RESPONSE))
+            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
 
           jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
           jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
@@ -331,7 +283,7 @@ describe('DataFeedMonitor', () => {
       it('testnet', async () => {
         jest
           .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-          .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
+          .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
 
         jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
         jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
@@ -354,9 +306,20 @@ describe('DataFeedMonitor', () => {
       })
 
       it('mainnet', async () => {
-        jest
-          .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-          .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE_MAINNET))
+        jest.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+          Promise.resolve([
+            {
+              heartbeat: '1000',
+              finality: '1',
+              feedFullName: 'feedFullname2mainnet',
+              lastResultTimestamp: '1000',
+              address: '0x123456789abcdef123456789abcdef123456789a',
+              lastResult: '2',
+              name: 'name2mainnet',
+              network: 'ethereum-mainnet'
+            }
+          ])
+        )
 
         jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
         jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
@@ -382,7 +345,7 @@ describe('DataFeedMonitor', () => {
     it('should send a telegram message if feed is outdated and its status has change from last call', async () => {
       jest
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
+        .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
       jest
         .spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
@@ -407,9 +370,20 @@ describe('DataFeedMonitor', () => {
     })
 
     it('should send a telegram message if feed is outdated and its status has change from last call with exact time', async () => {
-      jest
-        .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE_2))
+      jest.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+        Promise.resolve([
+          {
+            heartbeat: '1000',
+            finality: '1',
+            feedFullName: 'feedFullname2',
+            lastResultTimestamp: (1638461384 - 5000).toString(),
+            address: '0x123456789abcdef123456789abcdef123456789a',
+            lastResult: '2',
+            name: 'name2',
+            network: 'ethereum-goerli'
+          }
+        ])
+      )
       jest
         .spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
@@ -436,7 +410,7 @@ describe('DataFeedMonitor', () => {
     it('should send a telegram message if feed is NOT outdated and is the first time checking that feed', async () => {
       jest
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
+        .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
       jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
@@ -461,7 +435,7 @@ describe('DataFeedMonitor', () => {
     it('should NOT send a telegram message if feed is outdated and last check was also outdated', async () => {
       jest
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
+        .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
       jest.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
       jest.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
@@ -473,7 +447,7 @@ describe('DataFeedMonitor', () => {
         // pass a state where last response to feedFullName was outdated
         {
           'ethereum-goerli': {
-            [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: {
+            [SINGLE_FEED_GOERLI[0].feedFullName]: {
               isOutdated: true,
               msToBeUpdated: -100000,
               statusChanged: false,
@@ -493,7 +467,7 @@ describe('DataFeedMonitor', () => {
     it('should NOT send a telegram message if feed is NOT outdated and last check was also NOT outdated', async () => {
       jest
         .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEED_SINGLE_RESPONSE))
+        .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
       jest
         .spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
@@ -508,7 +482,7 @@ describe('DataFeedMonitor', () => {
         // pass a state where last response to feedFullName was NOT outdated
         {
           'ethereum-goerli': {
-            [FEED_SINGLE_RESPONSE.feeds.feeds[0].feedFullName]: {
+            [SINGLE_FEED_GOERLI[0].feedFullName]: {
               isOutdated: false,
               msToBeUpdated: 100000,
               statusChanged: false,

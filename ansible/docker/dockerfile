@@ -12,4 +12,4 @@ RUN npm install
 
 RUN npm run build
 
-CMD ["sh" "-c" "npm run build && node ./dist/index.js"]
+CMD ["sh", "-c", "npm run build && node ./dist/index.js"]

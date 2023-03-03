@@ -1,7 +1,20 @@
 version: "3.9"
 
+x-logging:
+      &default-loki
+      driver: loki
+      options:
+        loki-url: "LOKI-REPLACE-ME"
+        max-size: "200m"
+
+networks:
+  DFM:
+
 services:
   monitor:
     image: witnet/data-feed-status-bot:latest
     env_file:
-      - /home/ubuntu/data-feed-status-bot/.env
+      - /home/ubuntu/dfm/.env
+    networks:
+      - DFM
+    logging: *default-loki

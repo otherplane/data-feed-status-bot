@@ -3,26 +3,26 @@
   tasks:
     - name: Create Deployment Directory
       file:
-        path: /home/ubuntu/data-feed-status-bot
+        path: /home/ubuntu/dfm
         state: directory
 
     - name: Copy .env File
       copy:
         src: ./.env
-        dest: /home/ubuntu/data-feed-status-bot/.env
+        dest: /home/ubuntu/dfm/.env
 
     - name: Copy Docker Swarm Stack File
       copy:
         src: ./docker-compose.yml
-        dest: /home/ubuntu/data-feed-status-bot/docker-compose.yml
+        dest: /home/ubuntu/dfm/docker-compose.yml
 
     - name: Stack History limit
-      shell: docker swarm update --task-history-limit 3
+      shell: docker swarm update --task-history-limit 2
 
     - name: Deploy Docker Stack
       shell: |
-        cd /home/ubuntu/data-feed-status-bot
-        docker stack deploy -c <(docker-compose config) dfsb
+        cd /home/ubuntu/dfm
+        docker stack deploy -c <(docker-compose config) dfm
         sleep 60
       args:
         executable: /bin/bash
@@ -34,4 +34,4 @@
     - name: List Images & Containers for SHA256 Comparsion if needed
       shell: |
         docker image ls
-        docker stack ps dfsb
+        docker stack ps dfm

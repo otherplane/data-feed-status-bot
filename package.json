@@ -20,7 +20,8 @@
   "dependencies": {
     "graphql": "^15.0.1",
     "graphql-request": "^3.6.1",
-    "node-telegram-bot-api": "^0.54.0"
+    "node-telegram-bot-api": "^0.54.0",
+    "tslib": "^2.5.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",

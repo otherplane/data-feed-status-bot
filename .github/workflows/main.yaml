@@ -19,22 +19,21 @@ jobs:
 
       - name: Create Deployment Files
         shell: bash
-        env: 
+        env:
           ENVARS: ${{ secrets.ENVIRONMENT_VARIABLES }}
           AINV: ${{ secrets.ANSIBLE_INVENTORY }}
           APKEY: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
         run: |
-          echo "$ENVARS" > ./.env
           echo "$ENVARS" > ./ansible/.env
           echo "$AINV" > ./ansible/inventory.ini
           echo "$APKEY" > ./ansible/key.pem
           chmod 400 ./ansible/key.pem
-      - name: Build Containers
+
+      - name: Build & Publish Container
         run: |
           docker build -t witnet/data-feed-status-bot:latest -f ./ansible/docker/dockerfile .
-      - name: Publish Containers
-        run: |
           docker push witnet/data-feed-status-bot:latest
+
       - name: Deploy with Ansible
         shell: bash
         run: |

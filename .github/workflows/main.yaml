@@ -20,6 +20,7 @@ jobs:
       - name: Create Deployment Files
         shell: bash
         env:
+          LOKI: ${{ secrets.LOKI_URL }}
           ENVARS: ${{ secrets.ENVIRONMENT_VARIABLES }}
           AINV: ${{ secrets.ANSIBLE_INVENTORY }}
           APKEY: ${{ secrets.ANSIBLE_PRIVATE_KEY }}
@@ -28,6 +29,7 @@ jobs:
           echo "$AINV" > ./ansible/inventory.ini
           echo "$APKEY" > ./ansible/key.pem
           chmod 400 ./ansible/key.pem
+          sed -i "s#LOKI-REPLACE-ME#$LOKI#g" ./ansible/docker-compose.yml
 
       - name: Build & Publish Container
         run: |

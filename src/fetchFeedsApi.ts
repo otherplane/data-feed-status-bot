@@ -39,7 +39,7 @@ export function fetchFeedsApi (
         if (tries !== 0) {
           await sleep(retryAfterMs)
         }
-        const result = await client.request(query, variables)
+        const result: any = await client.request(query, variables)
         if (result?.feeds?.feeds) {
           success = result
         } else {

@@ -1,9 +1,10 @@
-process.env.NTBA_FIX_319 = '1'
+import dotenv from 'dotenv'
+dotenv.config()
 
 import { GraphQLClient } from 'graphql-request'
 import TelegramBot from 'node-telegram-bot-api'
 
-import { DataFeedMonitor } from './DataFeedMonitor'
+import { DataFeedMonitor } from './DataFeedMonitor.js'
 
 const TOKEN_BOT_TESTNET = process.env.TOKEN_BOT_TESTNET
 const TOKEN_BOT_MAINNET = process.env.TOKEN_BOT_MAINNET

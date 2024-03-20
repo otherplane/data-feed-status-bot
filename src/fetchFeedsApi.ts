@@ -1,7 +1,7 @@
 import { GraphQLClient, gql } from 'graphql-request'
 
-import { MAX_RETRIES, RETRY_AFTER_MS } from './constants'
-import { ApiSuccessResponse, Feed } from './types'
+import { MAX_RETRIES, RETRY_AFTER_MS } from './constants.js'
+import { ApiSuccessResponse, Feed } from './types.js'
 
 // TODO: call with pagination
 export function fetchFeedsApi (

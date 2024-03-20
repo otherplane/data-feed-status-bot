@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request'
-import { fetchFeedsApi } from '../src/fetchFeedsApi'
+import { fetchFeedsApi } from '../src/fetchFeedsApi.js'
 
 const FEEDS = [
   {

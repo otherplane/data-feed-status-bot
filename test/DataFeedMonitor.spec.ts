@@ -1,9 +1,9 @@
-import * as FetchFeedsApi from '../src/fetchFeedsApi'
+import * as FetchFeedsApi from '../src/fetchFeedsApi.js'
 import { GraphQLClient } from 'graphql-request'
 import TelegramBot from 'node-telegram-bot-api'
-import { DataFeedMonitor, LEGEND_MESSAGE } from '../src/DataFeedMonitor'
-import * as FeedStatus from '../src/feedStatus'
-import { Feed } from '../src/types'
+import { DataFeedMonitor } from '../src/DataFeedMonitor.js'
+import * as FeedStatus from '../src/feedStatus.js'
+import { Feed } from '../src/types.js'
 
 const FEEDS: Array<Feed> = [
   {

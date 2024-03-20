@@ -1,25 +1,48 @@
 {
   "compilerOptions": {
-    "skipLibCheck": true,
-    "target": "es2019",
-    "module": "commonjs",
-    "strict": true,
-    "jsx": "preserve",
-    "importHelpers": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
     "allowJs": true,
-    "baseUrl": ".",
-    "types": ["node", "jest"],
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "baseUrl": "./",
+    "declaration": true,
+    "declarationMap": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "incremental": true,
+    "lib": ["es2020", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "ESNext",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@microsoft",
+      "./node_modules"
+    ],
+    "types": ["vitest/globals"],
     "paths": {
       "@/*": ["src/*"]
     },
-    "outDir": "dist/"
   },
-  "exclude": ["node_modules", "tests"],
-  "include": ["src//*.ts"]
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules", "dist"],
+  "ts-node": {
+    "esm": true,
+    "transpileOnly": true,
+    "files": true,
+    "experimentalResolver": true
+  }
 }

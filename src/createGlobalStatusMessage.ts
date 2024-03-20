@@ -1,4 +1,4 @@
-import { FeedStatusInfo, GlobalStatusEmoji, Network, State } from './types'
+import { FeedStatusInfo, GlobalStatusEmoji, Network, State } from './types.js'
 
 export function createGlobalStatusMessage (state: State, network: Network) {
   const isCorrectChainKind = (feed: FeedStatusInfo) =>

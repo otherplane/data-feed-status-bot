@@ -1,5 +1,5 @@
-import { isFeedActive } from '../src/feedStatus'
-import { TIME_TO_CONSIDER_FEED_INACTIVE_MS } from '../src/constants'
+import { isFeedActive } from '../src/feedStatus.js'
+import { TIME_TO_CONSIDER_FEED_INACTIVE_MS } from '../src/constants.js'
 
 describe('isFeedActive', () => {
   it('should return false if last update timestamp is greater than number of days specified as constant', () => {

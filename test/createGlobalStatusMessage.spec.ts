@@ -1,5 +1,5 @@
-import createGlobalStatusMessage from '../src/createGlobalStatusMessage'
-import { GlobalStatusEmoji, Network, State } from '../src/types'
+import createGlobalStatusMessage from '../src/createGlobalStatusMessage.js'
+import { GlobalStatusEmoji, Network, State } from '../src/types.js'
 
 describe('createGlobalStatusMessage', () => {
   describe('should include the right color', () => {

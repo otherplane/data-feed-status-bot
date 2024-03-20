@@ -1,5 +1,6 @@
 {
   "name": "data-feed-status-bot",
+  "type": "module",
   "version": "1.0.0",
   "description": "Send a notification to a telegram group when one of the data feeds is outdated",
   "main": "index.ts",
@@ -8,6 +9,8 @@
     "node": ">=20"
   },
   "scripts": {
+    "dev": "node --no-warnings --enable-source-maps --loader ts-node/esm src/index.ts",
+    "dev:watch": "nodemon --watch src/ -e ts --exec \"npm run dev\"",
     "dev": "nodemon",
     "lint": "prettier-standard --format",
     "lint:check": "prettier-standard --check",
@@ -20,8 +23,7 @@
   "dependencies": {
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
-    "node-telegram-bot-api": "^0.65.1",
-    "tslib": "^2.6.2"
+    "node-telegram-bot-api": "^0.65.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

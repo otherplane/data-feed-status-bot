@@ -1,8 +1,8 @@
 import { GraphQLClient } from 'graphql-request'
 import TelegramBot from 'node-telegram-bot-api'
 
-import { fetchFeedsApi } from './fetchFeedsApi'
-import { getMsToBeUpdated, isFeedOutdated } from './feedStatus'
+import { fetchFeedsApi } from './fetchFeedsApi.js'
+import { getMsToBeUpdated, isFeedOutdated } from './feedStatus.js'
 import {
   ApiSuccessResponse,
   Feed,
@@ -13,15 +13,15 @@ import {
   Network,
   State,
   StatusEmoji
-} from './types'
+} from './types.js'
 import {
   MAINNET_KEYWORDS,
   ADMISSIBLE_DELAY_MS,
   DAYS_TO_CONSIDER_FEED_INACTIVE
-} from './constants'
-import { groupBy } from './groupBy'
-import { isFeedActive } from './feedStatus'
-import { createGlobalStatusMessage } from './createGlobalStatusMessage'
+} from './constants.js'
+import { groupBy } from './groupBy.js'
+import { isFeedActive } from './feedStatus.js'
+import { createGlobalStatusMessage } from './createGlobalStatusMessage.js'
 
 export const LEGEND_MESSAGE = `Global status:
 ${GlobalStatusEmoji.Green} => All active feeds are up to date 

@@ -1,4 +1,4 @@
-import { groupBy } from '../src/groupBy'
+import { groupBy } from '../src/groupBy.js'
 
 describe('groupBy', () => {
   it('creates an object grouping the array elements by the specified key', () => {

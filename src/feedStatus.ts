@@ -1,6 +1,6 @@
-import { ADMISSIBLE_DELAY_MS } from './constants'
-import { TIME_TO_CONSIDER_FEED_INACTIVE_MS } from './constants'
-import { Feed } from './types'
+import { ADMISSIBLE_DELAY_MS } from './constants.js'
+import { TIME_TO_CONSIDER_FEED_INACTIVE_MS } from './constants.js'
+import { Feed } from './types.js'
 
 export function isFeedOutdated (msToBeUpdated: number): boolean {
   return msToBeUpdated < 0

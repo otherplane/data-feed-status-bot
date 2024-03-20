@@ -1,5 +1,5 @@
-import { getMsToBeUpdated } from '../src/feedStatus'
-import { Feed } from '../src/types'
+import { getMsToBeUpdated } from '../src/feedStatus.js'
+import { Feed } from '../src/types.js'
 
 describe('getMsToBeUpdated', () => {
   it('should return a value greater than 0 if the heartbeat is GREATER than the difference between current timestamp and last request timestamp)', () => {

@@ -1,4 +1,4 @@
-import { formatDelayString } from '../src/DataFeedMonitor'
+import { formatDelayString } from '../src/DataFeedMonitor.js'
 
 describe('formatDelayString', () => {
   it('5 min', () => {

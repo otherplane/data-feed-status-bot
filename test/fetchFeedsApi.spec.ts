@@ -29,7 +29,7 @@ const API_RESPONSE_SUCCESS = { feeds: { feeds: FEEDS } }
 const RETRY_AFTER_MS = 100
 describe('fetchFeedsApi ', () => {
   it('should return the result if the first call is success', async () => {
-    const requestMock = jest.fn().mockReturnValue(API_RESPONSE_SUCCESS)
+    const requestMock = vi.fn().mockReturnValue(API_RESPONSE_SUCCESS)
     const graphqlClientMock: GraphQLClient = ({
       request: requestMock
     } as unknown) as GraphQLClient
@@ -40,7 +40,7 @@ describe('fetchFeedsApi ', () => {
   })
 
   it('should not wait before fetch the first time', async () => {
-    const requestMock = jest.fn().mockReturnValue(API_RESPONSE_SUCCESS)
+    const requestMock = vi.fn().mockReturnValue(API_RESPONSE_SUCCESS)
     const graphqlClientMock: GraphQLClient = ({
       request: requestMock
     } as unknown) as GraphQLClient
@@ -53,7 +53,7 @@ describe('fetchFeedsApi ', () => {
   })
 
   it('should not retry if the first call is success', async () => {
-    const requestMock = jest.fn().mockReturnValue(API_RESPONSE_SUCCESS)
+    const requestMock = vi.fn().mockReturnValue(API_RESPONSE_SUCCESS)
     const graphqlClientMock: GraphQLClient = ({
       request: requestMock
     } as unknown) as GraphQLClient
@@ -64,7 +64,7 @@ describe('fetchFeedsApi ', () => {
   })
 
   it('should retry only once if the first call is error and second is a success', async () => {
-    const requestMock = jest
+    const requestMock = vi
       .fn()
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValue(API_RESPONSE_SUCCESS)
@@ -78,7 +78,7 @@ describe('fetchFeedsApi ', () => {
   })
 
   it('should retry only once if the first call is error and second is a success', async () => {
-    const requestMock = jest
+    const requestMock = vi
       .fn()
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValue(API_RESPONSE_SUCCESS)
@@ -96,7 +96,7 @@ describe('fetchFeedsApi ', () => {
   })
 
   it('should retry 3 times max', async () => {
-    const requestMock = jest
+    const requestMock = vi
       .fn()
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
@@ -114,7 +114,7 @@ describe('fetchFeedsApi ', () => {
   })
 
   it('should wait between all retries', async () => {
-    const requestMock = jest
+    const requestMock = vi
       .fn()
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
@@ -136,7 +136,7 @@ describe('fetchFeedsApi ', () => {
   })
 
   it('should return the result if the response is a success in last retry', async () => {
-    const requestMock = jest
+    const requestMock = vi
       .fn()
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValueOnce({ response: { error: 'ERROR' } })

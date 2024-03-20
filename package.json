@@ -11,10 +11,7 @@
   "scripts": {
     "dev": "node --no-warnings --enable-source-maps --loader ts-node/esm src/index.ts",
     "dev:watch": "nodemon --watch src/ -e ts --exec \"npm run dev\"",
-    "dev": "nodemon",
-    "lint": "prettier-standard --format",
-    "lint:check": "prettier-standard --check",
-    "test": "jest",
+    "test": "vitest",
     "build": "tsc",
     "docker:build": "docker build -t witnet/data-feed-status-bot ."
   },
@@ -35,6 +32,7 @@
     "prettier-standard": "^16.4.1",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.2",
+    "vitest": "^1.4.0"
   }
 }

@@ -10,4 +10,4 @@ RUN pnpm install
 
 RUN pnpm run build
 
-CMD ["sh", "-c", "pnpm run build && pm2 start dist --no-daemon"]
+CMD ["sh", "-c", "pnpm run build && pm2 start dist/src/index.js --no-daemon"]

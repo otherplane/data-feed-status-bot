@@ -4,9 +4,9 @@ import { MAX_RETRIES, RETRY_AFTER_MS } from './constants.js'
 import { ApiSuccessResponse, Feed } from './types.js'
 
 // TODO: call with pagination
-export function fetchFeedsApi (
+export function fetchFeedsApi(
   client: GraphQLClient,
-  retryAfterMs = RETRY_AFTER_MS
+  retryAfterMs = RETRY_AFTER_MS,
 ): Promise<Array<Feed>> {
   const query = gql`
     query feeds($network: String!) {
@@ -26,7 +26,7 @@ export function fetchFeedsApi (
     }
   `
   const variables = {
-    network: 'all'
+    network: 'all',
   }
 
   return new Promise(async (resolve, reject) => {
@@ -60,6 +60,6 @@ export function fetchFeedsApi (
   })
 }
 
-async function sleep (ms: number) {
-  return new Promise(resolve => setTimeout(() => resolve(true), ms))
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(() => resolve(true), ms))
 }

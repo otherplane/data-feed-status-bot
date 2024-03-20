@@ -28,7 +28,7 @@ describe('formatDelayString', () => {
   it('more than requested days', () => {
     const delayString = formatDelayString(
       8 * 24 * 60 * 60 * 1000,
-      5 * 60 * 1000
+      5 * 60 * 1000,
     )
 
     expect(delayString).toBe('> 7d')
@@ -37,7 +37,7 @@ describe('formatDelayString', () => {
   it('more than requested days big ', () => {
     const delayString = formatDelayString(
       1000 * 24 * 60 * 60 * 1000,
-      5 * 60 * 1000
+      5 * 60 * 1000,
     )
 
     expect(delayString).toBe('> 7d')

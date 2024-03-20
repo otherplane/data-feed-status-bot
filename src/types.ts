@@ -18,19 +18,19 @@ export type ApiSuccessResponse = {
 
 export enum Network {
   Mainnet,
-  Testnet
+  Testnet,
 }
 export enum StatusEmoji {
   Green = '🟢',
   Yellow = '🟡',
   Red = '🔴',
-  Black = '⚫'
+  Black = '⚫',
 }
 
 export enum GlobalStatusEmoji {
   Green = '💚',
   Yellow = '💛',
-  Red = '❤️'
+  Red = '❤️',
 }
 
 export type FeedsStatusByNetwork = Record<FeedName, FeedStatusInfo>

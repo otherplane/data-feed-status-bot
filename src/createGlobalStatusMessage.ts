@@ -1,6 +1,6 @@
 import { FeedStatusInfo, GlobalStatusEmoji, Network, State } from './types.js'
 
-export function createGlobalStatusMessage (state: State, network: Network) {
+export function createGlobalStatusMessage(state: State, network: Network) {
   const isCorrectChainKind = (feed: FeedStatusInfo) =>
     network === Network.Mainnet ? feed.isMainnet : !feed.isMainnet
 
@@ -12,20 +12,20 @@ export function createGlobalStatusMessage (state: State, network: Network) {
       }
 
       const singleNetworkIsDown = !!Object.values(network).every(
-        info => info.isOutdated && info.isActive
+        (info) => info.isOutdated && info.isActive,
       )
 
       return isDown || singleNetworkIsDown
     },
-    false
+    false,
   )
 
   const totalActiveFeeds: Array<FeedStatusInfo> = Object.values(state)
-    .flatMap(network => Object.values(network))
-    .filter(feedStatusInfo => {
+    .flatMap((network) => Object.values(network))
+    .filter((feedStatusInfo) => {
       return feedStatusInfo.isActive && isCorrectChainKind(feedStatusInfo)
     })
-  const updatedActiveFeeds = totalActiveFeeds.filter(feed => !feed.isOutdated)
+  const updatedActiveFeeds = totalActiveFeeds.filter((feed) => !feed.isOutdated)
 
   let globalStatusEmoji
   if (isNetworkDown) {

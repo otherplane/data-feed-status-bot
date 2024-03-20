@@ -10,7 +10,7 @@ const FEEDS = [
     address: 'address1',
     lastResult: '1',
     name: 'name1',
-    network: 'ethereum-mainnet'
+    network: 'ethereum-mainnet',
   },
   {
     heartbeat: '1000',
@@ -20,8 +20,8 @@ const FEEDS = [
     address: '0x123456789abcdef123456789abcdef123456789a',
     lastResult: '2',
     name: 'name2',
-    network: 'ethereum-rinkeby'
-  }
+    network: 'ethereum-rinkeby',
+  },
 ]
 
 const API_RESPONSE_SUCCESS = { feeds: { feeds: FEEDS } }
@@ -30,9 +30,9 @@ const RETRY_AFTER_MS = 100
 describe('fetchFeedsApi ', () => {
   it('should return the result if the first call is success', async () => {
     const requestMock = vi.fn().mockReturnValue(API_RESPONSE_SUCCESS)
-    const graphqlClientMock: GraphQLClient = ({
-      request: requestMock
-    } as unknown) as GraphQLClient
+    const graphqlClientMock: GraphQLClient = {
+      request: requestMock,
+    } as unknown as GraphQLClient
 
     const result = await fetchFeedsApi(graphqlClientMock, RETRY_AFTER_MS)
 
@@ -41,9 +41,9 @@ describe('fetchFeedsApi ', () => {
 
   it('should not wait before fetch the first time', async () => {
     const requestMock = vi.fn().mockReturnValue(API_RESPONSE_SUCCESS)
-    const graphqlClientMock: GraphQLClient = ({
-      request: requestMock
-    } as unknown) as GraphQLClient
+    const graphqlClientMock: GraphQLClient = {
+      request: requestMock,
+    } as unknown as GraphQLClient
 
     const checkpoint = Date.now()
     await fetchFeedsApi(graphqlClientMock, RETRY_AFTER_MS)
@@ -54,9 +54,9 @@ describe('fetchFeedsApi ', () => {
 
   it('should not retry if the first call is success', async () => {
     const requestMock = vi.fn().mockReturnValue(API_RESPONSE_SUCCESS)
-    const graphqlClientMock: GraphQLClient = ({
-      request: requestMock
-    } as unknown) as GraphQLClient
+    const graphqlClientMock: GraphQLClient = {
+      request: requestMock,
+    } as unknown as GraphQLClient
 
     await fetchFeedsApi(graphqlClientMock, RETRY_AFTER_MS)
 
@@ -68,9 +68,9 @@ describe('fetchFeedsApi ', () => {
       .fn()
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValue(API_RESPONSE_SUCCESS)
-    const graphqlClientMock: GraphQLClient = ({
-      request: requestMock
-    } as unknown) as GraphQLClient
+    const graphqlClientMock: GraphQLClient = {
+      request: requestMock,
+    } as unknown as GraphQLClient
 
     await fetchFeedsApi(graphqlClientMock, RETRY_AFTER_MS)
 
@@ -82,16 +82,16 @@ describe('fetchFeedsApi ', () => {
       .fn()
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValue(API_RESPONSE_SUCCESS)
-    const graphqlClientMock: GraphQLClient = ({
-      request: requestMock
-    } as unknown) as GraphQLClient
+    const graphqlClientMock: GraphQLClient = {
+      request: requestMock,
+    } as unknown as GraphQLClient
 
     const checkpoint = Date.now()
     await fetchFeedsApi(graphqlClientMock, RETRY_AFTER_MS)
     const awaited = Date.now() - checkpoint
 
     expect(
-      awaited >= RETRY_AFTER_MS && awaited < RETRY_AFTER_MS * 2
+      awaited >= RETRY_AFTER_MS && awaited < RETRY_AFTER_MS * 2,
     ).toBeTruthy()
   })
 
@@ -102,9 +102,9 @@ describe('fetchFeedsApi ', () => {
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValue(API_RESPONSE_SUCCESS)
-    const graphqlClientMock: GraphQLClient = ({
-      request: requestMock
-    } as unknown) as GraphQLClient
+    const graphqlClientMock: GraphQLClient = {
+      request: requestMock,
+    } as unknown as GraphQLClient
 
     try {
       await fetchFeedsApi(graphqlClientMock, RETRY_AFTER_MS)
@@ -120,9 +120,9 @@ describe('fetchFeedsApi ', () => {
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValue(API_RESPONSE_SUCCESS)
-    const graphqlClientMock: GraphQLClient = ({
-      request: requestMock
-    } as unknown) as GraphQLClient
+    const graphqlClientMock: GraphQLClient = {
+      request: requestMock,
+    } as unknown as GraphQLClient
 
     const checkpoint = Date.now()
     try {
@@ -131,7 +131,7 @@ describe('fetchFeedsApi ', () => {
     const awaited = Date.now() - checkpoint
 
     expect(
-      awaited >= RETRY_AFTER_MS * 2 && RETRY_AFTER_MS < 500 * 3
+      awaited >= RETRY_AFTER_MS * 2 && RETRY_AFTER_MS < 500 * 3,
     ).toBeTruthy()
   })
 
@@ -141,9 +141,9 @@ describe('fetchFeedsApi ', () => {
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValueOnce({ response: { error: 'ERROR' } })
       .mockReturnValue(API_RESPONSE_SUCCESS)
-    const graphqlClientMock: GraphQLClient = ({
-      request: requestMock
-    } as unknown) as GraphQLClient
+    const graphqlClientMock: GraphQLClient = {
+      request: requestMock,
+    } as unknown as GraphQLClient
 
     const result = await fetchFeedsApi(graphqlClientMock, RETRY_AFTER_MS)
 

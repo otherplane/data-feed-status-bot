@@ -4,7 +4,6 @@ import TelegramBot from 'node-telegram-bot-api'
 import { fetchFeedsApi } from './fetchFeedsApi.js'
 import { getMsToBeUpdated, isFeedOutdated } from './feedStatus.js'
 import {
-  ApiSuccessResponse,
   Feed,
   FeedName,
   FeedsStatusByNetwork,
@@ -12,12 +11,12 @@ import {
   GlobalStatusEmoji,
   Network,
   State,
-  StatusEmoji
+  StatusEmoji,
 } from './types.js'
 import {
   MAINNET_KEYWORDS,
   ADMISSIBLE_DELAY_MS,
-  DAYS_TO_CONSIDER_FEED_INACTIVE
+  DAYS_TO_CONSIDER_FEED_INACTIVE,
 } from './constants.js'
 import { groupBy } from './groupBy.js'
 import { isFeedActive } from './feedStatus.js'
@@ -45,13 +44,13 @@ export class DataFeedMonitor {
   // store data feed name and its last status
   private state: State = {}
 
-  constructor (
+  constructor(
     graphQLClient: GraphQLClient,
     {
       mainnetBot,
-      testnetBot
+      testnetBot,
     }: { mainnetBot: TelegramBot; testnetBot: TelegramBot },
-    state: State = {}
+    state: State = {},
   ) {
     this.graphQLClient = graphQLClient
     this.mainnetBot = mainnetBot
@@ -59,12 +58,12 @@ export class DataFeedMonitor {
     this.state = state
   }
 
-  public async sendLegendMessage () {
+  public async sendLegendMessage() {
     this.sendTelegramMessage(Network.Testnet, LEGEND_MESSAGE)
     this.sendTelegramMessage(Network.Mainnet, LEGEND_MESSAGE)
   }
 
-  public async checkFeedsStatus (dateNow: number = Date.now()) {
+  public async checkFeedsStatus(dateNow: number = Date.now()) {
     let feeds: Array<Feed> | undefined
     try {
       feeds = await fetchFeedsApi(this.graphQLClient)
@@ -73,24 +72,25 @@ export class DataFeedMonitor {
     }
 
     if (feeds) {
-      const monitorableFeeds = feeds.filter(feed => feed.heartbeat)
+      const monitorableFeeds = feeds.filter((feed) => feed.heartbeat)
       const feedsByNetwork = groupBy(monitorableFeeds, 'network')
       const isFirstCheck = !Object.keys(this.state).length
 
       this.state = Object.entries(feedsByNetwork).reduce(
         (state: State, [network, networkFeeds]) => {
-          const feedsStatusByNetwork: FeedsStatusByNetwork = groupFeedsStatusByNetwork(
-            networkFeeds,
-            this.state[network],
-            dateNow
-          )
+          const feedsStatusByNetwork: FeedsStatusByNetwork =
+            groupFeedsStatusByNetwork(
+              networkFeeds,
+              this.state[network],
+              dateNow,
+            )
 
           return {
             ...state,
-            [network]: feedsStatusByNetwork
+            [network]: feedsStatusByNetwork,
           }
         },
-        this.state
+        this.state,
       )
 
       const shouldSendMessages = Object.entries(this.state).reduce(
@@ -98,7 +98,7 @@ export class DataFeedMonitor {
           const shouldSendMessage = Object.values(networkFeeds).reduce(
             (shouldSendMessage, feed) =>
               shouldSendMessage || feed.statusChanged,
-            false
+            false,
           )
 
           if (isMainnetFeed(network)) {
@@ -107,7 +107,7 @@ export class DataFeedMonitor {
             return { ...acc, testnet: acc.testnet || shouldSendMessage }
           }
         },
-        { mainnet: false, testnet: false }
+        { mainnet: false, testnet: false },
       )
 
       const { mainnetState, testnetState } = splitStateByKind(this.state)
@@ -117,14 +117,14 @@ export class DataFeedMonitor {
           (messages: Array<string>, [network, feeds]) => {
             return [...messages, createNetworkMessage(feeds, network)]
           },
-          []
+          [],
         )
 
       if (isFirstCheck || shouldSendMessages.mainnet) {
         const messages = createMessages(mainnetState)
         const globalStatusMessage = createGlobalStatusMessage(
           this.state,
-          Network.Mainnet
+          Network.Mainnet,
         )
 
         messages.unshift(globalStatusMessage + '\n')
@@ -136,7 +136,7 @@ export class DataFeedMonitor {
         const messages = createMessages(testnetState)
         const globalStatusMessage = createGlobalStatusMessage(
           this.state,
-          Network.Testnet
+          Network.Testnet,
         )
 
         messages.unshift(globalStatusMessage + '\n')
@@ -148,40 +148,41 @@ export class DataFeedMonitor {
     return
   }
 
-  public async sendTelegramMessage (network: Network, message: string) {
+  public async sendTelegramMessage(network: Network, message: string) {
     const credentialsByNetwork = {
       [Network.Mainnet]: {
         telegramBot: this.mainnetBot,
-        channelId: process.env.CHANNEL_ID_MAINNET
+        channelId: process.env.CHANNEL_ID_MAINNET,
       },
       [Network.Testnet]: {
         telegramBot: this.testnetBot,
-        channelId: process.env.CHANNEL_ID_TESTNET
-      }
+        channelId: process.env.CHANNEL_ID_TESTNET,
+      },
     }
     const { telegramBot, channelId } = credentialsByNetwork[network]
 
     try {
       // if CHANNEL_ID is not found at the beginning will throw an error
       return await telegramBot.sendMessage(channelId as string, message, {
-        parse_mode: 'Markdown'
+        parse_mode: 'Markdown',
       })
     } catch (err) {
       console.error(err)
+      return 
     }
   }
 }
 
-function createNetworkMessage (
+function createNetworkMessage(
   feedsStatusByNetwork: FeedsStatusByNetwork,
-  network: string
+  network: string,
 ): string {
   const feedInfos = Object.values(feedsStatusByNetwork)
 
   const outdatedFeeds = feedInfos.filter(
-    feedInfo => feedInfo.isOutdated && feedInfo.isActive
+    (feedInfo) => feedInfo.isOutdated && feedInfo.isActive,
   )
-  const inactiveFeeds = feedInfos.filter(feedInfo => !feedInfo.isActive)
+  const inactiveFeeds = feedInfos.filter((feedInfo) => !feedInfo.isActive)
   const outdatedFeedsLength = outdatedFeeds.length
   const feedsLength = feedInfos.length
   const isInactiveNetwork = inactiveFeeds.length === feedInfos.length
@@ -189,7 +190,7 @@ function createNetworkMessage (
   // the feed is outdated and we have to convert it to a positive number because the delay is
   // expected to be > 0
   const largestDelayMs =
-    -1 * Math.min(...outdatedFeeds.map(feedInfo => feedInfo.msToBeUpdated))
+    -1 * Math.min(...outdatedFeeds.map((feedInfo) => feedInfo.msToBeUpdated))
   // only use the delay if there are outdated feeds
   const delay = outdatedFeeds.length
     ? formatDelayString(largestDelayMs)
@@ -207,21 +208,19 @@ function createNetworkMessage (
   }
 
   const statusHasChanged = feedInfos.find(
-    feedStatusInfo => feedStatusInfo.statusChanged
+    (feedStatusInfo) => feedStatusInfo.statusChanged,
   )
 
-  const message = `${color} ${network.replace('-', '.')} ${feedsLength -
-    outdatedFeedsLength -
-    inactiveFeeds.length}/${feedsLength} ${
-    delay ? '(' + delay + ')' : ''
-  }`.trim()
+  const message = `${color} ${network.replace('-', '.')} ${
+    feedsLength - outdatedFeedsLength - inactiveFeeds.length
+  }/${feedsLength} ${delay ? '(' + delay + ')' : ''}`.trim()
 
   return statusHasChanged ? `*${message}*` : message
 }
 
-export function formatDelayString (
+export function formatDelayString(
   delay: number,
-  admissibleDelay = ADMISSIBLE_DELAY_MS
+  admissibleDelay = ADMISSIBLE_DELAY_MS,
 ): string {
   // Admissible delay is added because it's used to calculate the ms to be updated
   let secondsToBeUpdated = Math.floor((delay + admissibleDelay) / 1000)
@@ -246,10 +245,10 @@ export function formatDelayString (
   return timeOutdatedString
 }
 
-function groupFeedsStatusByNetwork (
+function groupFeedsStatusByNetwork(
   feeds: Array<Feed>,
   networkFeedsStatus: Record<FeedName, FeedStatusInfo>,
-  dateNow: number
+  dateNow: number,
 ): FeedsStatusByNetwork {
   return feeds.reduce((acc: FeedsStatusByNetwork, feed: Feed) => {
     const msToBeUpdated = getMsToBeUpdated(dateNow, feed)
@@ -259,7 +258,7 @@ function groupFeedsStatusByNetwork (
     // TODO: normalize all timestamp after query data
     const isActive = isFeedActive(
       parseInt(feed.lastResultTimestamp || '0') * 1000,
-      dateNow
+      dateNow,
     )
     return {
       ...acc,
@@ -268,17 +267,17 @@ function groupFeedsStatusByNetwork (
         msToBeUpdated,
         statusChanged,
         isMainnet,
-        isActive
-      }
+        isActive,
+      },
     }
   }, networkFeedsStatus || {})
 }
 
-function isMainnetFeed (network: string) {
-  return !!MAINNET_KEYWORDS.find(keyword => network.includes(keyword))
+function isMainnetFeed(network: string) {
+  return !!MAINNET_KEYWORDS.find((keyword) => network.includes(keyword))
 }
 
-function splitStateByKind (state: State) {
+function splitStateByKind(state: State) {
   return Object.entries(state).reduce(
     (networks, [network, feeds]) => {
       const isMainnet = Object.values(feeds)[0].isMainnet
@@ -289,12 +288,12 @@ function splitStateByKind (state: State) {
           : networks.mainnetState,
         testnetState: !isMainnet
           ? { ...networks.testnetState, [network]: feeds }
-          : networks.testnetState
+          : networks.testnetState,
       }
     },
     { testnetState: {}, mainnetState: {} } as {
       mainnetState: State
       testnetState: State
-    }
+    },
   )
 }

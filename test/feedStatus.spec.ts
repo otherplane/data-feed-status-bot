@@ -1,5 +1,4 @@
 import { getMsToBeUpdated } from '../src/feedStatus.js'
-import { Feed } from '../src/types.js'
 
 describe('getMsToBeUpdated', () => {
   it('should return a value greater than 0 if the heartbeat is GREATER than the difference between current timestamp and last request timestamp)', () => {
@@ -11,7 +10,7 @@ describe('getMsToBeUpdated', () => {
     const msToBeUpdated = getMsToBeUpdated(currentTimestamp, {
       feedFullName,
       heartbeat,
-      lastResultTimestamp
+      lastResultTimestamp,
     })
 
     expect(msToBeUpdated).toBe(3272258)
@@ -26,7 +25,7 @@ describe('getMsToBeUpdated', () => {
     const msToBeUpdated = getMsToBeUpdated(currentTimestamp, {
       feedFullName,
       heartbeat,
-      lastResultTimestamp
+      lastResultTimestamp,
     })
 
     expect(msToBeUpdated).toBe(-53682742)

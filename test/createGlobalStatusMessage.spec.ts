@@ -11,8 +11,8 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20668617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
-          }
+            isActive: true,
+          },
         },
         'ethereum-rinkeby': {
           'ethereum-rinkeby_btc-usd_6': {
@@ -20,16 +20,16 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20848617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
+            isActive: true,
           },
           'ethereum-rinkeby_eth-usd_6': {
             isOutdated: false,
             msToBeUpdated: 22828617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
-          }
-        }
+            isActive: true,
+          },
+        },
       }
 
       const message = createGlobalStatusMessage(state, Network.Testnet)
@@ -45,8 +45,8 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20668617,
             statusChanged: false,
             isMainnet: false,
-            isActive: false
-          }
+            isActive: false,
+          },
         },
         'ethereum-rinkeby': {
           'ethereum-rinkeby_btc-usd_6': {
@@ -54,15 +54,15 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20848617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
+            isActive: true,
           },
           'ethereum-rinkeby_eth-usd_6': {
             isOutdated: false,
             msToBeUpdated: 22828617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
-          }
+            isActive: true,
+          },
         },
         'ethereum-mainnet': {
           'ethereum-mainnet_btc-usd_6': {
@@ -70,9 +70,9 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: -4650826383,
             statusChanged: false,
             isMainnet: true,
-            isActive: false
-          }
-        }
+            isActive: false,
+          },
+        },
       }
 
       const message = createGlobalStatusMessage(state, Network.Testnet)
@@ -88,8 +88,8 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20668617,
             statusChanged: false,
             isMainnet: false,
-            isActive: false
-          }
+            isActive: false,
+          },
         },
         'ethereum-rinkeby': {
           'ethereum-rinkeby_btc-usd_6': {
@@ -97,16 +97,16 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20848617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
+            isActive: true,
           },
           'ethereum-rinkeby_eth-usd_6': {
             isOutdated: false,
             msToBeUpdated: 22828617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
-          }
-        }
+            isActive: true,
+          },
+        },
       }
 
       const message = createGlobalStatusMessage(state, Network.Testnet)
@@ -122,8 +122,8 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20668617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
-          }
+            isActive: true,
+          },
         },
         'ethereum-rinkeby': {
           'ethereum-rinkeby_btc-usd_6': {
@@ -131,16 +131,16 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20848617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
+            isActive: true,
           },
           'ethereum-rinkeby_eth-usd_6': {
             isOutdated: false,
             msToBeUpdated: 22828617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
-          }
-        }
+            isActive: true,
+          },
+        },
       }
 
       const message = createGlobalStatusMessage(state, Network.Testnet)
@@ -158,8 +158,8 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20668617,
             statusChanged: false,
             isMainnet: true,
-            isActive: true
-          }
+            isActive: true,
+          },
         },
         'ethereum-rinkeby': {
           'ethereum-rinkeby_btc-usd_6': {
@@ -167,16 +167,16 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20848617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
+            isActive: true,
           },
           'ethereum-rinkeby_eth-usd_6': {
             isOutdated: false,
             msToBeUpdated: 22828617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
-          }
-        }
+            isActive: true,
+          },
+        },
       }
 
       const message = createGlobalStatusMessage(state, Network.Testnet)
@@ -192,8 +192,8 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20668617,
             statusChanged: false,
             isMainnet: true,
-            isActive: true
-          }
+            isActive: true,
+          },
         },
         'ethereum-rinkeby': {
           'ethereum-rinkeby_btc-usd_6': {
@@ -201,16 +201,16 @@ describe('createGlobalStatusMessage', () => {
             msToBeUpdated: 20848617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
+            isActive: true,
           },
           'ethereum-rinkeby_eth-usd_6': {
             isOutdated: false,
             msToBeUpdated: 22828617,
             statusChanged: false,
             isMainnet: false,
-            isActive: true
-          }
-        }
+            isActive: true,
+          },
+        },
       }
 
       const message = createGlobalStatusMessage(state, Network.Mainnet)
@@ -227,8 +227,8 @@ describe('createGlobalStatusMessage', () => {
           msToBeUpdated: 20668617,
           statusChanged: false,
           isMainnet: true,
-          isActive: true
-        }
+          isActive: true,
+        },
       },
       'ethereum-rinkeby': {
         'ethereum-rinkeby_btc-usd_6': {
@@ -236,16 +236,16 @@ describe('createGlobalStatusMessage', () => {
           msToBeUpdated: 20848617,
           statusChanged: false,
           isMainnet: false,
-          isActive: true
+          isActive: true,
         },
         'ethereum-rinkeby_eth-usd_6': {
           isOutdated: false,
           msToBeUpdated: 22828617,
           statusChanged: false,
           isMainnet: false,
-          isActive: true
-        }
-      }
+          isActive: true,
+        },
+      },
     }
 
     const message = createGlobalStatusMessage(state, Network.Testnet)

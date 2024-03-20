@@ -15,34 +15,34 @@ const POLLING_INTERVAL = parseInt(process.env.POLLING_INTERVAL || '60000') // 1m
 
 main()
 
-async function main () {
+async function main() {
   if (!TOKEN_BOT_TESTNET) {
     throw new Error(
-      'Mandatory environment variable TOKEN_BOT_TESTNET is missing'
+      'Mandatory environment variable TOKEN_BOT_TESTNET is missing',
     )
   }
 
   if (!TOKEN_BOT_MAINNET) {
     throw new Error(
-      'Mandatory environment variable TOKEN_BOT_MAINNET is missing'
+      'Mandatory environment variable TOKEN_BOT_MAINNET is missing',
     )
   }
 
   if (!CHANNEL_ID_TESTNET) {
     throw new Error(
-      'Mandatory environment variable CHANNEL_ID_TESTNET is missing'
+      'Mandatory environment variable CHANNEL_ID_TESTNET is missing',
     )
   }
 
   if (!CHANNEL_ID_MAINNET) {
     throw new Error(
-      'Mandatory environment variable CHANNEL_ID_MAINNET is missing'
+      'Mandatory environment variable CHANNEL_ID_MAINNET is missing',
     )
   }
 
   if (!FEED_EXPLORER_API) {
     throw new Error(
-      'Mandatory environment variable FEED_EXPLORER_API is missing'
+      'Mandatory environment variable FEED_EXPLORER_API is missing',
     )
   }
 
@@ -51,7 +51,7 @@ async function main () {
   const client = new GraphQLClient(FEED_EXPLORER_API)
   const dataFeedMonitor = new DataFeedMonitor(client, {
     mainnetBot,
-    testnetBot
+    testnetBot,
   })
   dataFeedMonitor.sendLegendMessage()
   setInterval(async () => {

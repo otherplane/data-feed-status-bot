@@ -11,7 +11,7 @@ describe('groupBy', () => {
         address: 'address1',
         lastResult: '1',
         name: 'name1',
-        network: 'network1'
+        network: 'network1',
       },
       {
         heartbeat: '1000',
@@ -21,7 +21,7 @@ describe('groupBy', () => {
         address: 'address1',
         lastResult: '1',
         name: 'name1',
-        network: 'network1'
+        network: 'network1',
       },
       {
         heartbeat: '1000',
@@ -31,7 +31,7 @@ describe('groupBy', () => {
         address: 'address2',
         lastResult: '2',
         name: 'name2',
-        network: 'network2'
+        network: 'network2',
       },
       {
         heartbeat: '1000',
@@ -41,7 +41,7 @@ describe('groupBy', () => {
         address: 'address2',
         lastResult: '2',
         name: 'name2',
-        network: 'network3'
+        network: 'network3',
       },
       {
         heartbeat: '1000',
@@ -51,8 +51,8 @@ describe('groupBy', () => {
         address: 'address2',
         lastResult: '2',
         name: 'name2',
-        network: 'network3'
-      }
+        network: 'network3',
+      },
     ]
 
     const result = {
@@ -65,7 +65,7 @@ describe('groupBy', () => {
           address: 'address1',
           lastResult: '1',
           name: 'name1',
-          network: 'network1'
+          network: 'network1',
         },
         {
           heartbeat: '1000',
@@ -75,8 +75,8 @@ describe('groupBy', () => {
           address: 'address1',
           lastResult: '1',
           name: 'name1',
-          network: 'network1'
-        }
+          network: 'network1',
+        },
       ],
       network2: [
         {
@@ -87,8 +87,8 @@ describe('groupBy', () => {
           address: 'address2',
           lastResult: '2',
           name: 'name2',
-          network: 'network2'
-        }
+          network: 'network2',
+        },
       ],
       network3: [
         {
@@ -99,7 +99,7 @@ describe('groupBy', () => {
           address: 'address2',
           lastResult: '2',
           name: 'name2',
-          network: 'network3'
+          network: 'network3',
         },
         {
           heartbeat: '1000',
@@ -109,9 +109,9 @@ describe('groupBy', () => {
           address: 'address2',
           lastResult: '2',
           name: 'name2',
-          network: 'network3'
-        }
-      ]
+          network: 'network3',
+        },
+      ],
     }
 
     expect(groupBy(feeds, 'network')).toStrictEqual(result)

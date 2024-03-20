@@ -14,7 +14,7 @@ const FEEDS: Array<Feed> = [
     address: 'address1',
     lastResult: '1',
     name: 'name1',
-    network: 'ethereum-mainnet'
+    network: 'ethereum-mainnet',
   },
   {
     heartbeat: '1000',
@@ -24,8 +24,8 @@ const FEEDS: Array<Feed> = [
     address: '0x123456789abcdef123456789abcdef123456789a',
     lastResult: '2',
     name: 'name2',
-    network: 'ethereum-rinkeby'
-  }
+    network: 'ethereum-rinkeby',
+  },
 ]
 
 const SINGLE_FEED_GOERLI: Array<Feed> = [
@@ -37,8 +37,8 @@ const SINGLE_FEED_GOERLI: Array<Feed> = [
     address: '0x123456789abcdef123456789abcdef123456789a',
     lastResult: '2',
     name: 'name2',
-    network: 'ethereum-goerli'
-  }
+    network: 'ethereum-goerli',
+  },
 ]
 
 const FEEDS_ETHEREUM_RINKEBY: Array<Feed> = [
@@ -50,7 +50,7 @@ const FEEDS_ETHEREUM_RINKEBY: Array<Feed> = [
     address: 'address1',
     lastResult: '1',
     name: 'name1',
-    network: 'ethereum-rinkeby'
+    network: 'ethereum-rinkeby',
   },
   {
     heartbeat: '1000',
@@ -60,8 +60,8 @@ const FEEDS_ETHEREUM_RINKEBY: Array<Feed> = [
     address: '0x123456789abcdef123456789abcdef123456789a',
     lastResult: '2',
     name: 'name2',
-    network: 'ethereum-rinkeby'
-  }
+    network: 'ethereum-rinkeby',
+  },
 ]
 
 const FEEDS_ETHEREUM_GOERLI: Array<Feed> = [
@@ -73,7 +73,7 @@ const FEEDS_ETHEREUM_GOERLI: Array<Feed> = [
     address: 'address1',
     lastResult: '1',
     name: 'name1',
-    network: 'ethereum-goerli'
+    network: 'ethereum-goerli',
   },
   {
     heartbeat: '1000',
@@ -83,13 +83,13 @@ const FEEDS_ETHEREUM_GOERLI: Array<Feed> = [
     address: '0x123456789abcdef123456789abcdef123456789a',
     lastResult: '2',
     name: 'name2',
-    network: 'ethereum-goerli'
-  }
+    network: 'ethereum-goerli',
+  },
 ]
 
 const FEEDS_MULTIPLE_NETWORKS: Array<Feed> = [
   ...FEEDS_ETHEREUM_GOERLI,
-  ...FEEDS_ETHEREUM_RINKEBY
+  ...FEEDS_ETHEREUM_RINKEBY,
 ]
 
 describe('DataFeedMonitor', () => {
@@ -99,15 +99,15 @@ describe('DataFeedMonitor', () => {
     const telegramMainnetBotMock = { sendMessage: vi.fn() }
 
     it('should call fetchFeedsApi with graphql client', async () => {
-     vi 
-        .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEEDS))
+      vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+        Promise.resolve(FEEDS),
+      )
       const dataFeedMonitor = new DataFeedMonitor(
-        (graphqlClientMock as unknown) as GraphQLClient,
+        graphqlClientMock as unknown as GraphQLClient,
         {
-          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-        }
+          mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+          testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+        },
       )
 
       await dataFeedMonitor.checkFeedsStatus()
@@ -116,17 +116,17 @@ describe('DataFeedMonitor', () => {
     })
 
     it('should check if received feeds are outdated', async () => {
-      vi
-        .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(FEEDS))
+      vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+        Promise.resolve(FEEDS),
+      )
       vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
       vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
-        (graphqlClientMock as unknown) as GraphQLClient,
+        graphqlClientMock as unknown as GraphQLClient,
         {
-          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-        }
+          mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+          testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+        },
       )
       const dateNow = 1638461384178
 
@@ -134,29 +134,29 @@ describe('DataFeedMonitor', () => {
 
       expect(FeedStatus.isFeedOutdated).toHaveBeenNthCalledWith(
         1,
-        -1638460083178
+        -1638460083178,
       )
       expect(FeedStatus.isFeedOutdated).toHaveBeenNthCalledWith(
         2,
-        1636822920916822
+        1636822920916822,
       )
     })
 
     describe('should send the correct number of down feeds in the message', () => {
       describe('first time calling them', () => {
         it('should send a black message if all feeds are inactive', async () => {
-          vi
-            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
+          vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+            Promise.resolve(FEEDS_MULTIPLE_NETWORKS),
+          )
 
           vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
           vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(false)
           const dataFeedMonitor = new DataFeedMonitor(
-            (graphqlClientMock as unknown) as GraphQLClient,
+            graphqlClientMock as unknown as GraphQLClient,
             {
-              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-            }
+              mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+              testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+            },
           )
           const dateNow = 1638461384178
 
@@ -165,27 +165,26 @@ describe('DataFeedMonitor', () => {
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
             `💚 0 / 0\n\n*⚫ ethereum.goerli 0/2*\n*⚫ ethereum.rinkeby 0/2*`,
-            { parse_mode: 'Markdown' }
+            { parse_mode: 'Markdown' },
           )
         })
         it('should send a green message if only some feeds are inactive', async () => {
-          vi
-            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
+          vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+            Promise.resolve(FEEDS_MULTIPLE_NETWORKS),
+          )
 
           vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
-          vi
-            .spyOn(FeedStatus, 'isFeedActive')
+          vi.spyOn(FeedStatus, 'isFeedActive')
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
           const dataFeedMonitor = new DataFeedMonitor(
-            (graphqlClientMock as unknown) as GraphQLClient,
+            graphqlClientMock as unknown as GraphQLClient,
             {
-              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-            }
+              mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+              testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+            },
           )
           const dateNow = 1638461384178
 
@@ -194,22 +193,22 @@ describe('DataFeedMonitor', () => {
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
             `💚 2 / 2\n\n*🟢 ethereum.goerli 1/2*\n*🟢 ethereum.rinkeby 1/2*`,
-            { parse_mode: 'Markdown' }
+            { parse_mode: 'Markdown' },
           )
         })
         it('should send a green message if all feeds are updated', async () => {
-          vi
-            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
+          vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+            Promise.resolve(FEEDS_MULTIPLE_NETWORKS),
+          )
 
           vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
           vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
           const dataFeedMonitor = new DataFeedMonitor(
-            (graphqlClientMock as unknown) as GraphQLClient,
+            graphqlClientMock as unknown as GraphQLClient,
             {
-              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-            }
+              mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+              testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+            },
           )
           const dateNow = 1638461384178
 
@@ -218,28 +217,27 @@ describe('DataFeedMonitor', () => {
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
             `💚 4 / 4\n\n*🟢 ethereum.goerli 2/2*\n*🟢 ethereum.rinkeby 2/2*`,
-            { parse_mode: 'Markdown' }
+            { parse_mode: 'Markdown' },
           )
         })
 
         it('should send a yellow message if some feeds are oudated', async () => {
-          vi
-            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
+          vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+            Promise.resolve(FEEDS_MULTIPLE_NETWORKS),
+          )
 
-          vi
-            .spyOn(FeedStatus, 'isFeedOutdated')
+          vi.spyOn(FeedStatus, 'isFeedOutdated')
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
           vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
           const dataFeedMonitor = new DataFeedMonitor(
-            (graphqlClientMock as unknown) as GraphQLClient,
+            graphqlClientMock as unknown as GraphQLClient,
             {
-              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-            }
+              mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+              testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+            },
           )
           const dateNow = 1638461384178
 
@@ -248,23 +246,23 @@ describe('DataFeedMonitor', () => {
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
             `💛 2 / 4\n\n*🟡 ethereum.goerli 1/2 (> 7d)*\n*🟡 ethereum.rinkeby 1/2 (> 7d)*`,
-            { parse_mode: 'Markdown' }
+            { parse_mode: 'Markdown' },
           )
         })
 
         it('should send a red message if all of them are outdated', async () => {
-          vi
-            .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-            .mockReturnValue(Promise.resolve(FEEDS_MULTIPLE_NETWORKS))
+          vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+            Promise.resolve(FEEDS_MULTIPLE_NETWORKS),
+          )
 
           vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
           vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
           const dataFeedMonitor = new DataFeedMonitor(
-            (graphqlClientMock as unknown) as GraphQLClient,
+            graphqlClientMock as unknown as GraphQLClient,
             {
-              mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-              testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-            }
+              mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+              testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+            },
           )
           const dateNow = 1638461384178
 
@@ -273,7 +271,7 @@ describe('DataFeedMonitor', () => {
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
             `❤️ 0 / 4\n\n*🔴 ethereum.goerli 0/2 (> 7d)*\n*🔴 ethereum.rinkeby 0/2 (> 7d)*`,
-            { parse_mode: 'Markdown' }
+            { parse_mode: 'Markdown' },
           )
         })
       })
@@ -281,18 +279,18 @@ describe('DataFeedMonitor', () => {
 
     describe('should send a telegram message if feed is outdated and its the first time checking that feed', () => {
       it('testnet', async () => {
-        vi
-          .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-          .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
+        vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+          Promise.resolve(SINGLE_FEED_GOERLI),
+        )
 
         vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
         vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
         const dataFeedMonitor = new DataFeedMonitor(
-          (graphqlClientMock as unknown) as GraphQLClient,
+          graphqlClientMock as unknown as GraphQLClient,
           {
-            mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-            testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-          }
+            mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+            testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+          },
         )
         const dateNow = 1638461384178
 
@@ -301,7 +299,7 @@ describe('DataFeedMonitor', () => {
         expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
           `❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 7d)*`,
-          { parse_mode: 'Markdown' }
+          { parse_mode: 'Markdown' },
         )
       })
 
@@ -316,19 +314,19 @@ describe('DataFeedMonitor', () => {
               address: '0x123456789abcdef123456789abcdef123456789a',
               lastResult: '2',
               name: 'name2mainnet',
-              network: 'ethereum-mainnet'
-            }
-          ])
+              network: 'ethereum-mainnet',
+            },
+          ]),
         )
 
         vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
         vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
         const dataFeedMonitor = new DataFeedMonitor(
-          (graphqlClientMock as unknown) as GraphQLClient,
+          graphqlClientMock as unknown as GraphQLClient,
           {
-            mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-            testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-          }
+            mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+            testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+          },
         )
         const dateNow = 1638461384178
 
@@ -337,26 +335,25 @@ describe('DataFeedMonitor', () => {
         expect(telegramMainnetBotMock.sendMessage).toBeCalledWith(
           expect.any(String),
           `❤️ 0 / 1\n\n*🔴 ethereum.mainnet 0/1 (> 7d)*`,
-          { parse_mode: 'Markdown' }
+          { parse_mode: 'Markdown' },
         )
       })
     })
 
     it('should send a telegram message if feed is outdated and its status has change from last call', async () => {
-      vi
-        .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
-      vi
-        .spyOn(FeedStatus, 'isFeedOutdated')
+      vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+        Promise.resolve(SINGLE_FEED_GOERLI),
+      )
+      vi.spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
         .mockReturnValueOnce(true)
       vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
-        (graphqlClientMock as unknown) as GraphQLClient,
+        graphqlClientMock as unknown as GraphQLClient,
         {
-          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-        }
+          mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+          testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+        },
       )
       const dateNow = 1638461384178
 
@@ -365,7 +362,7 @@ describe('DataFeedMonitor', () => {
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         `❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 7d)*`,
-        { parse_mode: 'Markdown' }
+        { parse_mode: 'Markdown' },
       )
     })
 
@@ -380,21 +377,20 @@ describe('DataFeedMonitor', () => {
             address: '0x123456789abcdef123456789abcdef123456789a',
             lastResult: '2',
             name: 'name2',
-            network: 'ethereum-goerli'
-          }
-        ])
+            network: 'ethereum-goerli',
+          },
+        ]),
       )
-      vi
-        .spyOn(FeedStatus, 'isFeedOutdated')
+      vi.spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
         .mockReturnValueOnce(true)
       vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
-        (graphqlClientMock as unknown) as GraphQLClient,
+        graphqlClientMock as unknown as GraphQLClient,
         {
-          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-        }
+          mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+          testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+        },
       )
       const dateNow = 1638461384178
 
@@ -403,22 +399,22 @@ describe('DataFeedMonitor', () => {
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         `❤️ 0 / 1\n\n*🔴 ethereum.goerli 0/1 (> 1h)*`,
-        { parse_mode: 'Markdown' }
+        { parse_mode: 'Markdown' },
       )
     })
 
     it('should send a telegram message if feed is NOT outdated and is the first time checking that feed', async () => {
-      vi
-        .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
+      vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+        Promise.resolve(SINGLE_FEED_GOERLI),
+      )
       vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
       vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
-        (graphqlClientMock as unknown) as GraphQLClient,
+        graphqlClientMock as unknown as GraphQLClient,
         {
-          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
-        }
+          mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+          testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
+        },
       )
       const dateNow = 1638461384178
 
@@ -428,21 +424,21 @@ describe('DataFeedMonitor', () => {
       expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
         expect.any(String),
         `💚 1 / 1\n\n*🟢 ethereum.goerli 1/1*`,
-        { parse_mode: 'Markdown' }
+        { parse_mode: 'Markdown' },
       )
     })
 
     it('should NOT send a telegram message if feed is outdated and last check was also outdated', async () => {
-      vi
-        .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
+      vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+        Promise.resolve(SINGLE_FEED_GOERLI),
+      )
       vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(true)
       vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
-        (graphqlClientMock as unknown) as GraphQLClient,
+        graphqlClientMock as unknown as GraphQLClient,
         {
-          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+          mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+          testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
         },
         // pass a state where last response to feedFullName was outdated
         {
@@ -452,10 +448,10 @@ describe('DataFeedMonitor', () => {
               msToBeUpdated: -100000,
               statusChanged: false,
               isMainnet: false,
-              isActive: true
-            }
-          }
-        }
+              isActive: true,
+            },
+          },
+        },
       )
       const dateNow = 1638461384178
 
@@ -465,19 +461,18 @@ describe('DataFeedMonitor', () => {
     })
 
     it('should NOT send a telegram message if feed is NOT outdated and last check was also NOT outdated', async () => {
-      vi
-        .spyOn(FetchFeedsApi, 'fetchFeedsApi')
-        .mockReturnValue(Promise.resolve(SINGLE_FEED_GOERLI))
-      vi
-        .spyOn(FeedStatus, 'isFeedOutdated')
+      vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
+        Promise.resolve(SINGLE_FEED_GOERLI),
+      )
+      vi.spyOn(FeedStatus, 'isFeedOutdated')
         .mockReturnValue(false)
         .mockReturnValue(false)
       vi.spyOn(FeedStatus, 'isFeedActive').mockReturnValue(true)
       const dataFeedMonitor = new DataFeedMonitor(
-        (graphqlClientMock as unknown) as GraphQLClient,
+        graphqlClientMock as unknown as GraphQLClient,
         {
-          mainnetBot: (telegramMainnetBotMock as unknown) as TelegramBot,
-          testnetBot: (telegramTestnetBotMock as unknown) as TelegramBot
+          mainnetBot: telegramMainnetBotMock as unknown as TelegramBot,
+          testnetBot: telegramTestnetBotMock as unknown as TelegramBot,
         },
         // pass a state where last response to feedFullName was NOT outdated
         {
@@ -487,10 +482,10 @@ describe('DataFeedMonitor', () => {
               msToBeUpdated: 100000,
               statusChanged: false,
               isMainnet: false,
-              isActive: true
-            }
-          }
-        }
+              isActive: true,
+            },
+          },
+        },
       )
       const dateNow = 1638461384178
 

@@ -115,12 +115,11 @@ export class DataFeedMonitor {
       const { mainnetState, testnetState } = splitStateByKind(this.state)
 
       const createMessages = (state: State) =>
-        Object.entries(state).reduce(
-          (messages: Array<string>, [network, feeds]) => {
+        Object.entries(state)
+          .sort(([keyA, _], [keyB, __]) => keyA.localeCompare(keyB))
+          .reduce((messages: Array<string>, [network, feeds]) => {
             return [...messages, createNetworkMessage(feeds, network)]
-          },
-          [],
-        )
+          }, [])
 
       if (isFirstCheck || shouldSendMessages.mainnet) {
         const messages = createMessages(mainnetState)

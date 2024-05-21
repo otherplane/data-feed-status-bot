@@ -20,6 +20,7 @@ export function fetchFeedsApi(
           heartbeat
           finality
           network
+          isRouted
         }
         total
       }

@@ -7,6 +7,7 @@ export type Feed = {
   lastResultTimestamp: string
   name: string
   network: string
+  isRouted: boolean
 }
 
 export type ApiSuccessResponse = {

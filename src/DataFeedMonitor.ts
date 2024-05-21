@@ -72,7 +72,9 @@ export class DataFeedMonitor {
     }
 
     if (feeds) {
-      const monitorableFeeds = feeds.filter((feed) => feed.heartbeat)
+      const monitorableFeeds = feeds.filter(
+        (feed) => feed.heartbeat && !feed.isRouted,
+      )
       const feedsByNetwork = groupBy(monitorableFeeds, 'network')
       const isFirstCheck = !Object.keys(this.state).length
 
@@ -168,7 +170,7 @@ export class DataFeedMonitor {
       })
     } catch (err) {
       console.error(err)
-      return 
+      return
     }
   }
 }

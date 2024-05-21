@@ -15,6 +15,7 @@ const FEEDS: Array<Feed> = [
     lastResult: '1',
     name: 'name1',
     network: 'ethereum-mainnet',
+    isRouted: false,
   },
   {
     heartbeat: '1000',
@@ -25,6 +26,7 @@ const FEEDS: Array<Feed> = [
     lastResult: '2',
     name: 'name2',
     network: 'ethereum-rinkeby',
+    isRouted: false,
   },
 ]
 
@@ -38,6 +40,7 @@ const SINGLE_FEED_GOERLI: Array<Feed> = [
     lastResult: '2',
     name: 'name2',
     network: 'ethereum-goerli',
+    isRouted: false,
   },
 ]
 
@@ -51,6 +54,7 @@ const FEEDS_ETHEREUM_RINKEBY: Array<Feed> = [
     lastResult: '1',
     name: 'name1',
     network: 'ethereum-rinkeby',
+    isRouted: false,
   },
   {
     heartbeat: '1000',
@@ -61,6 +65,7 @@ const FEEDS_ETHEREUM_RINKEBY: Array<Feed> = [
     lastResult: '2',
     name: 'name2',
     network: 'ethereum-rinkeby',
+    isRouted: false,
   },
 ]
 
@@ -74,6 +79,7 @@ const FEEDS_ETHEREUM_GOERLI: Array<Feed> = [
     lastResult: '1',
     name: 'name1',
     network: 'ethereum-goerli',
+    isRouted: false,
   },
   {
     heartbeat: '1000',
@@ -84,6 +90,7 @@ const FEEDS_ETHEREUM_GOERLI: Array<Feed> = [
     lastResult: '2',
     name: 'name2',
     network: 'ethereum-goerli',
+    isRouted: false,
   },
 ]
 
@@ -315,6 +322,7 @@ describe('DataFeedMonitor', () => {
               lastResult: '2',
               name: 'name2mainnet',
               network: 'ethereum-mainnet',
+              isRouted: false,
             },
           ]),
         )
@@ -378,6 +386,7 @@ describe('DataFeedMonitor', () => {
             lastResult: '2',
             name: 'name2',
             network: 'ethereum-goerli',
+            isRouted: false,
           },
         ]),
       )

@@ -21,10 +21,12 @@ export function createGlobalStatusMessage(state: State, network: Network) {
   )
 
   const totalActiveFeeds: Array<FeedStatusInfo> = Object.values(state)
+    // filter out non active networks
+    .filter(
+      (network) => !Object.values(network).every((feed) => !feed.isActive),
+    )
     .flatMap((network) => Object.values(network))
-    .filter((feedStatusInfo) => {
-      return feedStatusInfo.isActive && isCorrectChainKind(feedStatusInfo)
-    })
+    .filter((feedStatusInfo) => isCorrectChainKind(feedStatusInfo))
   const updatedActiveFeeds = totalActiveFeeds.filter((feed) => !feed.isOutdated)
 
   let globalStatusEmoji

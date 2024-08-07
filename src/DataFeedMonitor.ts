@@ -180,9 +180,7 @@ function createNetworkMessage(
 ): string {
   const feedInfos = Object.values(feedsStatusByNetwork)
 
-  const outdatedFeeds = feedInfos.filter(
-    (feedInfo) => feedInfo.isOutdated && feedInfo.isActive,
-  )
+  const outdatedFeeds = feedInfos.filter((feedInfo) => feedInfo.isOutdated)
   const inactiveFeeds = feedInfos.filter((feedInfo) => !feedInfo.isActive)
   const outdatedFeedsLength = outdatedFeeds.length
   const feedsLength = feedInfos.length
@@ -211,9 +209,10 @@ function createNetworkMessage(
   const statusHasChanged = feedInfos.find(
     (feedStatusInfo) => feedStatusInfo.statusChanged,
   )
+  const updatedFeeds = isInactiveNetwork ? 0 : feedsLength - outdatedFeedsLength
 
   const message = `${color} ${network.replace('-', '.')} ${
-    feedsLength - outdatedFeedsLength - inactiveFeeds.length
+    updatedFeeds
   }/${feedsLength} ${delay ? '(' + delay + ')' : ''}`.trim()
 
   return statusHasChanged ? `*${message}*` : message
@@ -233,11 +232,9 @@ export function formatDelayString(
   secondsToBeUpdated -= minutes * 60
 
   let timeOutdatedString
-  const daysToRequest = Number(DAYS_TO_CONSIDER_FEED_INACTIVE)
-  if (days && days > daysToRequest) {
-    timeOutdatedString = `> ${daysToRequest}d`
-  } else if (days) {
-    timeOutdatedString = `> ${days}d`
+  if (days) {
+    const daysToShow = Math.min(days, Number(DAYS_TO_CONSIDER_FEED_INACTIVE))
+    timeOutdatedString = `> ${daysToShow}d`
   } else if (hours) {
     timeOutdatedString = `> ${hours}h`
   } else {

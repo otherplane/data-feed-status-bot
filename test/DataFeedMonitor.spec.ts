@@ -175,12 +175,16 @@ describe('DataFeedMonitor', () => {
             { parse_mode: 'Markdown' },
           )
         })
-        it('should send a green message if only some feeds are inactive', async () => {
+        it('should send a yellow message if only some feeds are inactive', async () => {
           vi.spyOn(FetchFeedsApi, 'fetchFeedsApi').mockReturnValue(
             Promise.resolve(FEEDS_MULTIPLE_NETWORKS),
           )
 
-          vi.spyOn(FeedStatus, 'isFeedOutdated').mockReturnValue(false)
+          vi.spyOn(FeedStatus, 'isFeedOutdated')
+            .mockReturnValueOnce(true)
+            .mockReturnValueOnce(false)
+            .mockReturnValueOnce(true)
+            .mockReturnValueOnce(false)
           vi.spyOn(FeedStatus, 'isFeedActive')
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(true)
@@ -199,7 +203,7 @@ describe('DataFeedMonitor', () => {
 
           expect(telegramTestnetBotMock.sendMessage).toBeCalledWith(
             expect.any(String),
-            `💚 2 / 2\n\n*🟢 ethereum.goerli 1/2*\n*🟢 ethereum.rinkeby 1/2*`,
+            `💛 2 / 4\n\n*🟡 ethereum.goerli 1/2 (> 7d)*\n*🟡 ethereum.rinkeby 1/2 (> 7d)*`,
             { parse_mode: 'Markdown' },
           )
         })
